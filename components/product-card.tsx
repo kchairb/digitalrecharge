@@ -32,7 +32,11 @@ export function ProductCard({ product, lang }: { product: Product; lang: Lang })
           <div className="h-full w-full bg-gradient-to-br from-purple-500/35 to-sky-400/25" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a1222]/80 via-[#0a1222]/20 to-transparent" />
-        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+      </div>
+      <div className="flex h-full flex-col justify-between p-5">
+      <div>
+        <p className="text-xs text-slate-400">{product.categories?.name ?? copy.digitalProduct}</p>
+        <div className="mt-2 flex flex-wrap gap-2">
           {isInstant ? (
             <Badge className="border-amber-300/40 bg-amber-400/10 text-amber-200">
               <Zap className="mr-1 h-3.5 w-3.5" />
@@ -46,10 +50,6 @@ export function ProductCard({ product, lang }: { product: Product; lang: Lang })
             </Badge>
           ) : null}
         </div>
-      </div>
-      <div className="flex h-full flex-col justify-between p-5">
-      <div>
-        <p className="text-xs text-slate-400">{product.categories?.name ?? copy.digitalProduct}</p>
         <h3 className="mt-2 line-clamp-2 text-lg font-semibold text-white">{product.name}</h3>
         <p className="mt-2 text-sm text-slate-300">{product.short_description}</p>
         <div className="mt-4 flex items-center justify-between">
