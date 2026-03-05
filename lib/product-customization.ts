@@ -15,7 +15,7 @@ export type CartCustomizationInput = {
 export function getCustomProductKind(product: Product): CustomProductKind | null {
   const categorySlug = product.categories?.slug?.toLowerCase() ?? "";
   if (categorySlug === "gift-cards") return "gift_card";
-  if (categorySlug === "virtual-cards") return "vcc";
+  if (product.slug === "vcc-5") return "vcc";
   return null;
 }
 
@@ -28,7 +28,13 @@ export function inferBaseAmountUsd(product: Product) {
   return 10;
 }
 
-export function computeConfiguredUnitPriceDt(product: Product, amountUsd?: number) {
+export function computeConfiguredUnitPriceDt(
+  product: Product,
+  kind: CustomProductKind | null,
+  amountUsd?: number,
+) {
+  // Keep VCC on fixed product pricing (no auto price scaling).
+  if (kind === "vcc") return product.price_dt;
   if (!amountUsd || amountUsd <= 0) return product.price_dt;
   const baseAmount = inferBaseAmountUsd(product);
   const ratio = product.price_dt / Math.max(baseAmount, 1);

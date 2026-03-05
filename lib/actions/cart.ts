@@ -29,7 +29,7 @@ export async function addToCartAction(productId: number, quantity = 1, customiza
   const kind = getCustomProductKind(safeProduct);
   const safeCustomization = sanitizeCustomization(kind, customization);
   const lineId = makeLineId(productId, safeCustomization);
-  const unitPriceDt = computeConfiguredUnitPriceDt(safeProduct, safeCustomization.amountUsd);
+  const unitPriceDt = computeConfiguredUnitPriceDt(safeProduct, kind, safeCustomization.amountUsd);
   const existing = cart.find((item) => item.lineId === lineId);
 
   if (existing) {
