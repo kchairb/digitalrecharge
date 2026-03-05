@@ -9,7 +9,9 @@ import {
   GIFT_CARD_AMOUNTS,
   GIFT_CARD_PROVIDERS,
   VCC_AMOUNTS,
+  VCC_PRICING_BY_AMOUNT,
   buildConfiguredLabel,
+  computeConfiguredUnitPriceDt,
   getCustomProductKind,
 } from "@/lib/product-customization";
 import { formatDt, whatsappUrl } from "@/lib/utils";
@@ -28,6 +30,10 @@ export function ProductConfigPanel({ product }: { product: Product }) {
       customRequest: customRequest.trim() || undefined,
     }),
     [amountUsd, customRequest, kind, provider],
+  );
+  const previewPrice = useMemo(
+    () => computeConfiguredUnitPriceDt(product, kind, amountUsd),
+    [amountUsd, kind, product],
   );
 
   if (!kind) {
@@ -57,6 +63,11 @@ export function ProductConfigPanel({ product }: { product: Product }) {
         <p className="text-sm font-semibold text-slate-100">
           {kind === "gift_card" ? "Gift card options" : "Virtual card options"}
         </p>
+        {kind === "vcc" ? (
+          <p className="mt-2 text-sm text-sky-200">
+            Selected top-up price: <span className="font-semibold">{formatDt(previewPrice)}</span>
+          </p>
+        ) : null}
         <div className="mt-3 grid gap-3">
           {kind === "gift_card" ? (
             <label className="block">
@@ -76,7 +87,7 @@ export function ProductConfigPanel({ product }: { product: Product }) {
             <select value={amountUsd} onChange={(e) => setAmountUsd(Number(e.target.value))}>
               {(kind === "gift_card" ? GIFT_CARD_AMOUNTS : VCC_AMOUNTS).map((amount) => (
                 <option key={amount} value={amount}>
-                  ${amount}
+                  {kind === "vcc" ? `$${amount} - ${formatDt(VCC_PRICING_BY_AMOUNT[amount] ?? product.price_dt)}` : `$${amount}`}
                 </option>
               ))}
             </select>

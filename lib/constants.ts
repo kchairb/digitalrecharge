@@ -13,6 +13,10 @@ export const THEME_COLORS = {
 };
 
 export const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "21600000000";
+export const INSTAGRAM_URL =
+  process.env.NEXT_PUBLIC_INSTAGRAM_URL ?? "https://instagram.com/digitalrecharge.tn";
+export const FACEBOOK_URL =
+  process.env.NEXT_PUBLIC_FACEBOOK_URL ?? "https://facebook.com/digitalrecharge.tn";
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   flouci: "Flouci",

@@ -5,7 +5,9 @@ import {
   Bot,
   CircleDollarSign,
   CreditCard,
+  Facebook,
   Gift,
+  Instagram,
   Layers3,
   MessageCircleMore,
   MonitorPlay,
@@ -21,6 +23,7 @@ import { ProductCard } from "@/components/product-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { FACEBOOK_URL, INSTAGRAM_URL } from "@/lib/constants";
 import { getCategories, getFeaturedProducts, getPublishedFeedbacks } from "@/lib/data";
 import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/i18n-server";
@@ -81,6 +84,27 @@ export default async function Home() {
             <MessageCircleMore className="h-4 w-4 text-purple-300" />
             {copy.support}
           </span>
+        </div>
+        <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-300">
+          <span className="text-slate-400">{copy.followUs}:</span>
+          <Link
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 rounded-lg border border-slate-700 px-3 py-1.5 hover:border-sky-400/60 hover:text-white"
+          >
+            <Instagram className="h-4 w-4" />
+            {copy.instagram}
+          </Link>
+          <Link
+            href={FACEBOOK_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 rounded-lg border border-slate-700 px-3 py-1.5 hover:border-sky-400/60 hover:text-white"
+          >
+            <Facebook className="h-4 w-4" />
+            {copy.facebook}
+          </Link>
         </div>
       </section>
 

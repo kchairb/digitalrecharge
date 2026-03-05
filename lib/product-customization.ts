@@ -5,6 +5,13 @@ export type CustomProductKind = "gift_card" | "vcc";
 export const GIFT_CARD_PROVIDERS = ["Steam", "Apple", "Google Play", "PlayStation", "Riot Games"] as const;
 export const GIFT_CARD_AMOUNTS = [10, 20, 30, 50, 100] as const;
 export const VCC_AMOUNTS = [5, 10, 20, 50, 100] as const;
+export const VCC_PRICING_BY_AMOUNT: Record<number, number> = {
+  5: 45,
+  10: 45,
+  20: 85,
+  50: 205,
+  100: 405,
+};
 
 export type CartCustomizationInput = {
   provider?: string;
@@ -33,8 +40,10 @@ export function computeConfiguredUnitPriceDt(
   kind: CustomProductKind | null,
   amountUsd?: number,
 ) {
-  // Keep VCC on fixed product pricing (no auto price scaling).
-  if (kind === "vcc") return product.price_dt;
+  if (kind === "vcc") {
+    if (!amountUsd || amountUsd <= 0) return product.price_dt;
+    return VCC_PRICING_BY_AMOUNT[amountUsd] ?? product.price_dt;
+  }
   if (!amountUsd || amountUsd <= 0) return product.price_dt;
   const baseAmount = inferBaseAmountUsd(product);
   const ratio = product.price_dt / Math.max(baseAmount, 1);
