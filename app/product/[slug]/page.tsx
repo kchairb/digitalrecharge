@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getProductBySlug } from "@/lib/data";
+import { t } from "@/lib/i18n";
+import { getLang } from "@/lib/i18n-server";
 import { getCustomProductKind } from "@/lib/product-customization";
 import { formatDt, shouldUseUnoptimizedImage } from "@/lib/utils";
 
@@ -42,6 +44,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
+  const lang = await getLang();
+  const copy = t(lang);
   const product = await getProductBySlug(slug);
   if (!product) notFound();
   const isInstant = product.delivery_time.toLowerCase().includes("instant");
@@ -84,7 +88,7 @@ export default async function ProductPage({ params }: Props) {
             {isInstant ? (
               <Badge className="border-amber-300/40 bg-amber-500/10 text-amber-200">
                 <Zap className="mr-1 h-3.5 w-3.5" />
-                Instant
+                {copy.instant}
               </Badge>
             ) : null}
             <Badge>
@@ -92,11 +96,11 @@ export default async function ProductPage({ params }: Props) {
               {product.delivery_time}
             </Badge>
             {product.is_featured ? (
-              <Badge className="border-purple-400/40 bg-purple-500/10 text-purple-200">Best Seller</Badge>
+              <Badge className="border-purple-400/40 bg-purple-500/10 text-purple-200">{copy.bestSeller}</Badge>
             ) : null}
           </div>
 
-          <ProductConfigPanel product={product} />
+          <ProductConfigPanel product={product} lang={lang} />
 
           <div className="mt-5 space-y-2 text-sm text-slate-300">
             <p className="inline-flex items-center gap-2">
@@ -113,21 +117,21 @@ export default async function ProductPage({ params }: Props) {
 
       <Card className="space-y-3">
         <details open className="rounded-xl border border-slate-800 bg-slate-950/30 p-4">
-          <summary className="cursor-pointer text-base font-semibold text-white">What you get</summary>
+          <summary className="cursor-pointer text-base font-semibold text-white">{copy.whatYouGet}</summary>
           <div className="prose prose-invert mt-3 max-w-none text-slate-300">
             <ReactMarkdown>{product.long_description}</ReactMarkdown>
           </div>
         </details>
 
         <details className="rounded-xl border border-slate-800 bg-slate-950/30 p-4">
-          <summary className="cursor-pointer text-base font-semibold text-white">Requirements</summary>
+          <summary className="cursor-pointer text-base font-semibold text-white">{copy.requirementsTitle}</summary>
           <div className="prose prose-invert mt-3 max-w-none text-slate-300">
             <ReactMarkdown>{product.requirements}</ReactMarkdown>
           </div>
         </details>
 
         <details className="rounded-xl border border-slate-800 bg-slate-950/30 p-4">
-          <summary className="cursor-pointer text-base font-semibold text-white">Refund policy</summary>
+          <summary className="cursor-pointer text-base font-semibold text-white">{copy.refundPolicyTitle}</summary>
           <div className="prose prose-invert mt-3 max-w-none text-slate-300">
             <ReactMarkdown>{product.refund_policy}</ReactMarkdown>
           </div>
@@ -139,10 +143,10 @@ export default async function ProductPage({ params }: Props) {
           <p className="text-lg font-bold text-sky-200">{formatDt(product.price_dt)}</p>
           {customKind ? (
             <Link href="#top">
-              <Button className="w-auto min-w-36 px-5">Configure</Button>
+              <Button className="w-auto min-w-36 px-5">{copy.configure}</Button>
             </Link>
           ) : (
-            <AddToCartButton productId={product.id} label="Buy now" className="w-auto min-w-36 px-5" />
+            <AddToCartButton productId={product.id} label={copy.buyNow} className="w-auto min-w-36 px-5" />
           )}
         </div>
       </div>

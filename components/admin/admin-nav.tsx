@@ -10,17 +10,18 @@ import {
   MessageSquareText,
   Users,
 } from "lucide-react";
+import { Lang, t } from "@/lib/i18n";
 
-const links = [
-  { href: "/admin", label: "Overview", icon: LayoutDashboard },
-  { href: "/admin/products", label: "Products", icon: Boxes },
-  { href: "/admin/categories", label: "Categories", icon: FolderKanban },
-  { href: "/admin/orders", label: "Orders", icon: ClipboardList },
-  { href: "/admin/feedback", label: "Feedback", icon: MessageSquareText },
-  { href: "/admin/users", label: "Users", icon: Users },
-];
-
-export function AdminNav() {
+export function AdminNav({ lang }: { lang: Lang }) {
+  const copy = t(lang);
+  const links = [
+    { href: "/admin", label: copy.overview, icon: LayoutDashboard },
+    { href: "/admin/products", label: copy.products, icon: Boxes },
+    { href: "/admin/categories", label: copy.categoriesLabel, icon: FolderKanban },
+    { href: "/admin/orders", label: copy.ordersLabel, icon: ClipboardList },
+    { href: "/admin/feedback", label: copy.feedback, icon: MessageSquareText },
+    { href: "/admin/users", label: copy.users, icon: Users },
+  ];
   const pathname = usePathname();
 
   return (

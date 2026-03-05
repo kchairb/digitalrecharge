@@ -1,19 +1,27 @@
 import type { Metadata } from "next";
 
 import { Card } from "@/components/ui/card";
+import { t } from "@/lib/i18n";
+import { getLang } from "@/lib/i18n-server";
 
-export const metadata: Metadata = {
-  title: "Privacy",
-  description: "How we use customer data and payment proof information.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getLang();
+  const copy = t(lang);
+  return {
+    title: copy.privacy,
+    description: copy.metaPrivacyDesc,
+  };
+}
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const lang = await getLang();
+  const copy = t(lang);
   return (
     <Card className="prose prose-invert max-w-none">
-      <h1>Privacy Policy</h1>
-      <p>We collect only data needed to fulfill your order: name, WhatsApp, optional email, and order metadata.</p>
-      <p>Payment proof screenshots are stored securely in Supabase Storage and used only for verification.</p>
-      <p>We do not sell your personal data and access is restricted to authorized admins.</p>
+      <h1>{copy.privacyPolicyTitle}</h1>
+      <p>{copy.privacyP1}</p>
+      <p>{copy.privacyP2}</p>
+      <p>{copy.privacyP3}</p>
     </Card>
   );
 }

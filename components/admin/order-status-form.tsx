@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 
 import { updateOrderStatusAction } from "@/lib/actions/admin";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
+import { Lang, t } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { OrderStatus } from "@/types";
 
@@ -11,11 +12,14 @@ export function OrderStatusForm({
   orderId,
   status,
   initialNotes,
+  lang,
 }: {
   orderId: string;
   status: OrderStatus;
   initialNotes?: string | null;
+  lang: Lang;
 }) {
+  const copy = t(lang);
   const [pending, startTransition] = useTransition();
   const [notes, setNotes] = useState(initialNotes ?? "");
   const [message, setMessage] = useState("");
@@ -31,7 +35,7 @@ export function OrderStatusForm({
             status: nextStatus,
             delivery_notes: notes,
           });
-          setMessage(result.ok ? "Updated." : result.error ?? "Failed");
+          setMessage(result.ok ? copy.updated : result.error ?? copy.failed);
         })
       }
     >
@@ -46,10 +50,10 @@ export function OrderStatusForm({
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         className="min-h-24"
-        placeholder="Delivery notes..."
+        placeholder={copy.deliveryNotesPlaceholder}
       />
       <Button type="submit" disabled={pending}>
-        {pending ? "Updating..." : "Save"}
+        {pending ? copy.updating : copy.save}
       </Button>
       <p className="text-xs text-slate-400">{message}</p>
     </form>

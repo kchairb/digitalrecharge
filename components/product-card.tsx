@@ -6,11 +6,13 @@ import { AddToCartButton } from "@/components/add-to-cart-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Lang, t } from "@/lib/i18n";
 import { getCustomProductKind } from "@/lib/product-customization";
 import { formatDt, shouldUseUnoptimizedImage, whatsappUrl } from "@/lib/utils";
 import { Product } from "@/types";
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({ product, lang }: { product: Product; lang: Lang }) {
+  const copy = t(lang);
   const isInstant = product.delivery_time.toLowerCase().includes("instant");
   const isCustomizable = Boolean(getCustomProductKind(product));
 
@@ -34,20 +36,20 @@ export function ProductCard({ product }: { product: Product }) {
           {isInstant ? (
             <Badge className="border-amber-300/40 bg-amber-400/10 text-amber-200">
               <Zap className="mr-1 h-3.5 w-3.5" />
-              Instant
+              {copy.instant}
             </Badge>
           ) : null}
           {product.is_featured ? (
             <Badge className="border-purple-400/40 bg-purple-500/10 text-purple-200">
               <Sparkles className="mr-1 h-3.5 w-3.5" />
-              Best Seller
+              {copy.bestSeller}
             </Badge>
           ) : null}
         </div>
       </div>
       <div className="flex h-full flex-col justify-between p-5">
       <div>
-        <p className="text-xs text-slate-400">{product.categories?.name ?? "Digital Product"}</p>
+        <p className="text-xs text-slate-400">{product.categories?.name ?? copy.digitalProduct}</p>
         <h3 className="mt-2 line-clamp-2 text-lg font-semibold text-white">{product.name}</h3>
         <p className="mt-2 text-sm text-slate-300">{product.short_description}</p>
         <div className="mt-4 flex items-center justify-between">
@@ -59,24 +61,24 @@ export function ProductCard({ product }: { product: Product }) {
         <div className="grid gap-2 sm:grid-cols-2">
           <Link href={`/product/${product.slug}`}>
             <Button variant="secondary" className="w-full">
-              View
+              {copy.view}
               <ArrowUpRight className="ml-1 h-3.5 w-3.5" />
             </Button>
           </Link>
           {isCustomizable ? (
             <Link href={`/product/${product.slug}`}>
-              <Button className="w-full">Configure</Button>
+              <Button className="w-full">{copy.configure}</Button>
             </Link>
           ) : (
             <AddToCartButton productId={product.id} className="w-full" />
           )}
         </div>
         <Link href={`/product/${product.slug}`}>
-          <Button className="w-full shadow-[0_0_20px_rgba(139,92,246,0.35)]">Buy now</Button>
+          <Button className="w-full shadow-[0_0_20px_rgba(139,92,246,0.35)]">{copy.buyNow}</Button>
         </Link>
         <Link href={whatsappUrl(`Hello, I want to order ${product.name} (${formatDt(product.price_dt)}).`)} target="_blank">
           <Button variant="ghost" className="w-full">
-            Order via WhatsApp
+            {copy.orderWhatsapp}
           </Button>
         </Link>
       </div>

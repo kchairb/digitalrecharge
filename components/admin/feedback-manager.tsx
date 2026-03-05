@@ -7,11 +7,13 @@ import {
   deleteFeedbackAction,
   updateFeedbackAction,
 } from "@/lib/actions/admin";
+import { Lang, t } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import type { Feedback } from "@/types";
 
-function FeedbackRow({ feedback }: { feedback: Feedback }) {
+function FeedbackRow({ feedback, lang }: { feedback: Feedback; lang: Lang }) {
+  const copy = t(lang);
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
   const [form, setForm] = useState({
@@ -29,19 +31,19 @@ function FeedbackRow({ feedback }: { feedback: Feedback }) {
         <input
           value={form.customer_name}
           onChange={(e) => setForm((prev) => ({ ...prev, customer_name: e.target.value }))}
-          placeholder="Customer name"
+          placeholder={copy.customerName}
         />
         <input
           value={form.product_label}
           onChange={(e) => setForm((prev) => ({ ...prev, product_label: e.target.value }))}
-          placeholder="Product label (optional)"
+          placeholder={copy.productLabelOptional}
         />
       </div>
       <textarea
         value={form.comment}
         onChange={(e) => setForm((prev) => ({ ...prev, comment: e.target.value }))}
         className="min-h-24"
-        placeholder="Feedback text"
+        placeholder={copy.feedbackText}
       />
       <div className="grid gap-2 md:grid-cols-3">
         <input
@@ -50,12 +52,12 @@ function FeedbackRow({ feedback }: { feedback: Feedback }) {
           max={5}
           value={form.rating}
           onChange={(e) => setForm((prev) => ({ ...prev, rating: Number(e.target.value) }))}
-          placeholder="Rating"
+          placeholder={copy.rating}
         />
         <input
           value={form.screenshot_url}
           onChange={(e) => setForm((prev) => ({ ...prev, screenshot_url: e.target.value }))}
-          placeholder="Screenshot URL"
+          placeholder={copy.screenshotUrl}
         />
         <label className="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-3 py-2 text-sm">
           <input
@@ -63,7 +65,7 @@ function FeedbackRow({ feedback }: { feedback: Feedback }) {
             checked={form.is_published}
             onChange={(e) => setForm((prev) => ({ ...prev, is_published: e.target.checked }))}
           />
-          Published
+          {copy.published}
         </label>
       </div>
       <div className="flex flex-wrap gap-2">
@@ -73,11 +75,11 @@ function FeedbackRow({ feedback }: { feedback: Feedback }) {
           onClick={() =>
             startTransition(async () => {
               const result = await updateFeedbackAction(feedback.id, form);
-              setMessage(result.ok ? "Saved" : result.error ?? "Failed");
+              setMessage(result.ok ? copy.saved : result.error ?? copy.failed);
             })
           }
         >
-          Save
+          {copy.save}
         </Button>
         <Button
           variant="ghost"
@@ -85,15 +87,15 @@ function FeedbackRow({ feedback }: { feedback: Feedback }) {
           onClick={() =>
             startTransition(async () => {
               const result = await deleteFeedbackAction(feedback.id);
-              setMessage(result.ok ? "Deleted" : result.error ?? "Failed");
+              setMessage(result.ok ? copy.deleted : result.error ?? copy.failed);
             })
           }
         >
-          Delete
+          {copy.delete}
         </Button>
         {form.screenshot_url ? (
           <a href={form.screenshot_url} target="_blank" className="inline-flex items-center text-sm text-sky-300">
-            Open screenshot
+            {copy.openScreenshot}
           </a>
         ) : null}
       </div>
@@ -102,7 +104,8 @@ function FeedbackRow({ feedback }: { feedback: Feedback }) {
   );
 }
 
-export function FeedbackManager({ initial }: { initial: Feedback[] }) {
+export function FeedbackManager({ initial, lang }: { initial: Feedback[]; lang: Lang }) {
+  const copy = t(lang);
   const [pending, startTransition] = useTransition();
   const [createMsg, setCreateMsg] = useState("");
   const [newForm, setNewForm] = useState({
@@ -117,25 +120,25 @@ export function FeedbackManager({ initial }: { initial: Feedback[] }) {
   return (
     <div className="space-y-4">
       <Card>
-        <h2 className="text-lg font-semibold text-white">Add Feedback</h2>
+        <h2 className="text-lg font-semibold text-white">{copy.addFeedback}</h2>
         <div className="mt-3 space-y-2">
           <div className="grid gap-2 md:grid-cols-2">
             <input
               value={newForm.customer_name}
               onChange={(e) => setNewForm((p) => ({ ...p, customer_name: e.target.value }))}
-              placeholder="Customer name"
+              placeholder={copy.customerName}
             />
             <input
               value={newForm.product_label}
               onChange={(e) => setNewForm((p) => ({ ...p, product_label: e.target.value }))}
-              placeholder="Product label"
+              placeholder={copy.productLabel}
             />
           </div>
           <textarea
             value={newForm.comment}
             onChange={(e) => setNewForm((p) => ({ ...p, comment: e.target.value }))}
             className="min-h-24"
-            placeholder="Feedback text"
+            placeholder={copy.feedbackText}
           />
           <div className="grid gap-2 md:grid-cols-3">
             <input
@@ -144,12 +147,12 @@ export function FeedbackManager({ initial }: { initial: Feedback[] }) {
               max={5}
               value={newForm.rating}
               onChange={(e) => setNewForm((p) => ({ ...p, rating: Number(e.target.value) }))}
-              placeholder="Rating"
+              placeholder={copy.rating}
             />
             <input
               value={newForm.screenshot_url}
               onChange={(e) => setNewForm((p) => ({ ...p, screenshot_url: e.target.value }))}
-              placeholder="Screenshot URL"
+              placeholder={copy.screenshotUrl}
             />
             <label className="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-3 py-2 text-sm">
               <input
@@ -157,7 +160,7 @@ export function FeedbackManager({ initial }: { initial: Feedback[] }) {
                 checked={newForm.is_published}
                 onChange={(e) => setNewForm((p) => ({ ...p, is_published: e.target.checked }))}
               />
-              Published
+              {copy.published}
             </label>
           </div>
           <Button
@@ -165,7 +168,7 @@ export function FeedbackManager({ initial }: { initial: Feedback[] }) {
             onClick={() =>
               startTransition(async () => {
                 const result = await createFeedbackAction(newForm);
-                setCreateMsg(result.ok ? "Created" : result.error ?? "Failed");
+                setCreateMsg(result.ok ? copy.createdMsg : result.error ?? copy.failed);
                 if (result.ok) {
                   setNewForm({
                     customer_name: "",
@@ -179,7 +182,7 @@ export function FeedbackManager({ initial }: { initial: Feedback[] }) {
               })
             }
           >
-            Add feedback
+            {copy.addFeedback}
           </Button>
           <p className="text-xs text-slate-400">{createMsg}</p>
         </div>
@@ -187,7 +190,7 @@ export function FeedbackManager({ initial }: { initial: Feedback[] }) {
 
       <div className="space-y-3">
         {initial.map((item) => (
-          <FeedbackRow key={item.id} feedback={item} />
+          <FeedbackRow key={item.id} feedback={item} lang={lang} />
         ))}
       </div>
     </div>

@@ -12,10 +12,14 @@ import { getLang } from "@/lib/i18n-server";
 import { buildConfiguredLabel } from "@/lib/product-customization";
 import { formatDt, whatsappUrl } from "@/lib/utils";
 
-export const metadata: Metadata = {
-  title: "Checkout",
-  description: "Place order and select local payment method.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getLang();
+  const copy = t(lang);
+  return {
+    title: copy.checkoutTitle,
+    description: copy.metaCheckoutDesc,
+  };
+}
 
 export default async function CheckoutPage() {
   const lang = await getLang();

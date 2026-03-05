@@ -5,10 +5,14 @@ import { AuthForm } from "@/components/forms/auth-form";
 import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/i18n-server";
 
-export const metadata: Metadata = {
-  title: "Login",
-  description: "Login to access your account orders.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getLang();
+  const copy = t(lang);
+  return {
+    title: copy.loginTitle,
+    description: copy.metaLoginDesc,
+  };
+}
 
 export default async function LoginPage() {
   const lang = await getLang();

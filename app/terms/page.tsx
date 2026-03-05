@@ -1,19 +1,27 @@
 import type { Metadata } from "next";
 
 import { Card } from "@/components/ui/card";
+import { t } from "@/lib/i18n";
+import { getLang } from "@/lib/i18n-server";
 
-export const metadata: Metadata = {
-  title: "Terms",
-  description: "Terms and conditions for using DigitalRecharge.tn.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getLang();
+  const copy = t(lang);
+  return {
+    title: copy.terms,
+    description: copy.metaTermsDesc,
+  };
+}
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const lang = await getLang();
+  const copy = t(lang);
   return (
     <Card className="prose prose-invert max-w-none">
-      <h1>Terms of Service</h1>
-      <p>By placing an order, you confirm that information provided is accurate and you agree to our delivery process.</p>
-      <p>Digital products are delivered according to each product delivery time and can require account verification details.</p>
-      <p>Abuse, fraudulent payments, or chargeback attempts may result in cancellation and permanent account restriction.</p>
+      <h1>{copy.termsOfServiceTitle}</h1>
+      <p>{copy.termsP1}</p>
+      <p>{copy.termsP2}</p>
+      <p>{copy.termsP3}</p>
     </Card>
   );
 }

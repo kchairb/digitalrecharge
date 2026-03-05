@@ -54,7 +54,7 @@ export default async function AdminOrdersPage() {
             <p className="mt-2 text-sm text-slate-300">
               {order.customer_name} - {order.whatsapp_phone} - {formatDt(order.total_dt)}
             </p>
-            <p className="mt-1 text-xs text-slate-400">Payment method: {order.payment_method}</p>
+            <p className="mt-1 text-xs text-slate-400">{copy.paymentMethodShort}: {order.payment_method}</p>
             <div className="mt-3 space-y-1 text-sm text-slate-300">
               {order.order_items?.map((item) => (
                 <p key={item.id}>
@@ -64,13 +64,13 @@ export default async function AdminOrdersPage() {
             </div>
             {order.proof_image_url ? (
               <Link href={order.proof_image_url} target="_blank" className="mt-2 inline-block text-sm text-sky-300">
-                View uploaded proof
+                {copy.viewUploadedProof}
               </Link>
             ) : (
-              <p className="mt-2 text-sm text-slate-500">No proof image uploaded.</p>
+              <p className="mt-2 text-sm text-slate-500">{copy.noProofImageUploaded}</p>
             )}
           </div>
-          <OrderStatusForm orderId={order.id} status={order.status} initialNotes={order.delivery_notes} />
+          <OrderStatusForm orderId={order.id} status={order.status} initialNotes={order.delivery_notes} lang={lang} />
         </Card>
       ))}
     </div>

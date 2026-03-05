@@ -4,11 +4,15 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_STYLES } from "@/lib/constants";
 import { requireUser } from "@/lib/auth";
+import { t } from "@/lib/i18n";
+import { getLang } from "@/lib/i18n-server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { formatDt } from "@/lib/utils";
 
 export default async function AccountOrdersPage() {
   const user = await requireUser();
+  const lang = await getLang();
+  const copy = t(lang);
   const supabase = getSupabaseAdmin();
   const { data: orders } = await supabase
     .from("orders")
@@ -18,10 +22,10 @@ export default async function AccountOrdersPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-3xl font-bold text-white">My Orders</h1>
+      <h1 className="text-3xl font-bold text-white">{copy.accountOrdersTitle}</h1>
       {!orders?.length ? (
         <Card>
-          <p className="text-slate-300">No orders yet. Start from the shop.</p>
+          <p className="text-slate-300">{copy.noOrdersYet}</p>
         </Card>
       ) : (
         orders.map((order) => (

@@ -1,12 +1,16 @@
 import Link from "next/link";
 
 import { deleteProductFormAction } from "@/lib/actions/admin";
+import { t } from "@/lib/i18n";
+import { getLang } from "@/lib/i18n-server";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { formatDt } from "@/lib/utils";
 
 export default async function AdminProductsPage() {
+  const lang = await getLang();
+  const copy = t(lang);
   const supabase = getSupabaseAdmin();
   const { data: products } = await supabase
     .from("products")
@@ -16,9 +20,9 @@ export default async function AdminProductsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">Products</h1>
+        <h1 className="text-2xl font-bold text-white">{copy.products}</h1>
         <Link href="/admin/products/new">
-          <Button>New Product</Button>
+          <Button>{copy.newProduct}</Button>
         </Link>
       </div>
 
@@ -33,11 +37,11 @@ export default async function AdminProductsPage() {
             </div>
             <div className="flex gap-2">
               <Link href={`/admin/products/${product.id}/edit`}>
-                <Button variant="secondary">Edit</Button>
+                <Button variant="secondary">{copy.edit}</Button>
               </Link>
               <form action={deleteProductFormAction.bind(null, product.id)}>
                 <Button variant="ghost" type="submit">
-                  Delete
+                  {copy.delete}
                 </Button>
               </form>
             </div>

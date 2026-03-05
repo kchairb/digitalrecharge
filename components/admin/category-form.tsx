@@ -7,13 +7,15 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { createCategoryAction } from "@/lib/actions/admin";
+import { Lang, t } from "@/lib/i18n";
 import { categorySchema } from "@/lib/validation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 type Values = z.input<typeof categorySchema>;
 
-export function CategoryForm() {
+export function CategoryForm({ lang }: { lang: Lang }) {
+  const copy = t(lang);
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState("");
@@ -23,7 +25,7 @@ export function CategoryForm() {
 
   return (
     <Card>
-      <h2 className="text-lg font-semibold text-white">New Category</h2>
+      <h2 className="text-lg font-semibold text-white">{copy.newCategory}</h2>
       <form
         className="mt-3 grid gap-3 sm:grid-cols-4"
         onSubmit={handleSubmit((values) =>
@@ -31,7 +33,7 @@ export function CategoryForm() {
             setError("");
             const result = await createCategoryAction(values);
             if (!result.ok) {
-              setError(result.error ?? "Create failed");
+              setError(result.error ?? copy.createFailed);
               return;
             }
             reset();
@@ -39,11 +41,11 @@ export function CategoryForm() {
           }),
         )}
       >
-        <input className="" placeholder="Name" {...register("name")} />
-        <input className="" placeholder="slug" {...register("slug")} />
-        <input className="" placeholder="Image URL" {...register("image_url")} />
+        <input className="" placeholder={copy.name} {...register("name")} />
+        <input className="" placeholder={copy.slug} {...register("slug")} />
+        <input className="" placeholder={copy.imageUrl} {...register("image_url")} />
         <Button type="submit" disabled={pending}>
-          Add
+          {copy.add}
         </Button>
       </form>
       <p className="mt-2 text-xs text-rose-300">

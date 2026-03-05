@@ -7,10 +7,14 @@ import { getCategories, getProducts } from "@/lib/data";
 import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/i18n-server";
 
-export const metadata: Metadata = {
-  title: "Shop",
-  description: "Browse digital products: AI tools, streaming, design, and cards.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getLang();
+  const copy = t(lang);
+  return {
+    title: copy.shop,
+    description: copy.metaShopDesc,
+  };
+}
 
 type Props = {
   searchParams: Promise<{ search?: string; category?: string; sort?: "price" | "new" }>;
@@ -60,7 +64,7 @@ export default async function ShopPage({ searchParams }: Props) {
       {products.length ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product.id} product={product} lang={lang} />
           ))}
         </div>
       ) : (

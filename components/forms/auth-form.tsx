@@ -37,7 +37,7 @@ export function AuthForm({ mode, lang }: { mode: "login" | "signup"; lang: Lang 
               password: values.password,
             });
       if (!result.ok) {
-        setServerError(result.error ?? "Action failed");
+        setServerError(result.error ?? copy.actionFailed);
         return;
       }
       router.push("/account/orders");
@@ -62,9 +62,7 @@ export function AuthForm({ mode, lang }: { mode: "login" | "signup"; lang: Lang 
             <label className="block">
               <span className="mb-1 block text-sm font-medium text-slate-200">{copy.whatsappPhone}</span>
               <input type="tel" className="" {...register("whatsapp_phone")} />
-              <p className="mt-1 text-xs text-slate-500">
-                {lang === "ar" ? "رقم صالح لتحديثات الطلب عبر واتساب." : "Valid number for order updates on WhatsApp."}
-              </p>
+              <p className="mt-1 text-xs text-slate-500">{copy.whatsappSignupHint}</p>
               <p className="mt-1 text-xs text-rose-300">{formState.errors.whatsapp_phone?.message as string}</p>
             </label>
           </>
@@ -76,7 +74,7 @@ export function AuthForm({ mode, lang }: { mode: "login" | "signup"; lang: Lang 
             className=""
             {...register("email")}
           />
-          <p className="mt-1 text-xs text-slate-500">{lang === "ar" ? "نستخدم البريد فقط للدخول إلى الحساب." : "We only use your email for account access."}</p>
+          <p className="mt-1 text-xs text-slate-500">{copy.emailAccessHint}</p>
           <p className="mt-1 text-xs text-rose-300">{formState.errors.email?.message}</p>
         </label>
         <label className="block">
@@ -86,7 +84,7 @@ export function AuthForm({ mode, lang }: { mode: "login" | "signup"; lang: Lang 
             className=""
             {...register("password")}
           />
-          <p className="mt-1 text-xs text-slate-500">{lang === "ar" ? "6 أحرف على الأقل." : "Minimum 6 characters."}</p>
+          <p className="mt-1 text-xs text-slate-500">{copy.passwordMinHint}</p>
           <p className="mt-1 text-xs text-rose-300">{formState.errors.password?.message}</p>
         </label>
         {serverError ? <p className="text-sm text-rose-300">{serverError}</p> : null}

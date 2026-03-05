@@ -5,10 +5,14 @@ import { AuthForm } from "@/components/forms/auth-form";
 import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/i18n-server";
 
-export const metadata: Metadata = {
-  title: "Sign Up",
-  description: "Create a DigitalRecharge.tn account.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getLang();
+  const copy = t(lang);
+  return {
+    title: copy.signupTitle,
+    description: copy.metaSignupDesc,
+  };
+}
 
 export default async function SignupPage() {
   const lang = await getLang();

@@ -11,10 +11,14 @@ import { getLang } from "@/lib/i18n-server";
 import { formatDt } from "@/lib/utils";
 import { buildConfiguredLabel } from "@/lib/product-customization";
 
-export const metadata: Metadata = {
-  title: "Cart",
-  description: "Review selected products before checkout.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getLang();
+  const copy = t(lang);
+  return {
+    title: copy.cart,
+    description: copy.metaCartDesc,
+  };
+}
 
 export default async function CartPage() {
   const lang = await getLang();

@@ -6,12 +6,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PAYMENT_METHOD_LABELS } from "@/lib/constants";
+import { t } from "@/lib/i18n";
+import { getLang } from "@/lib/i18n-server";
 import { whatsappUrl } from "@/lib/utils";
 
-export const metadata: Metadata = {
-  title: "Order Created",
-  description: "Follow payment instructions and share your proof.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getLang();
+  const copy = t(lang);
+  return {
+    title: copy.orderCreatedBadge,
+    description: copy.metaOrderCreatedDesc,
+  };
+}
 
 type Props = {
   searchParams: Promise<{
@@ -24,47 +30,49 @@ type Props = {
 };
 
 export default async function OrderCreatedPage({ searchParams }: Props) {
+  const lang = await getLang();
+  const copy = t(lang);
   const params = await searchParams;
   const orderNumber = params.number ?? "N/A";
   const total = Number(params.total ?? 0);
-  const paymentMethod = (params.method && PAYMENT_METHOD_LABELS[params.method]) || "Payment Method";
+  const paymentMethod = (params.method && PAYMENT_METHOD_LABELS[params.method]) || copy.paymentMethodShort;
   const whatsappMessage = `Order ${orderNumber} created. Total ${total} DT. I will send payment proof now.`;
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <Card>
-        <Badge className="border-emerald-400/40 bg-emerald-500/10 text-emerald-300">Order Created</Badge>
-        <h1 className="mt-3 text-3xl font-bold text-white">Thanks for your order.</h1>
-        <p className="mt-3 text-slate-300">Order Number: {orderNumber}</p>
-        <p className="text-slate-300">Total: {total} DT</p>
-        <p className="text-slate-300">Payment method: {paymentMethod}</p>
+        <Badge className="border-emerald-400/40 bg-emerald-500/10 text-emerald-300">{copy.orderCreatedBadge}</Badge>
+        <h1 className="mt-3 text-3xl font-bold text-white">{copy.thanksForOrder}</h1>
+        <p className="mt-3 text-slate-300">{copy.orderNumberLabel}: {orderNumber}</p>
+        <p className="text-slate-300">{copy.total}: {total} DT</p>
+        <p className="text-slate-300">{copy.paymentMethodShort}: {paymentMethod}</p>
       </Card>
 
       <Card>
-        <h2 className="text-lg font-semibold text-white">Next steps</h2>
+        <h2 className="text-lg font-semibold text-white">{copy.nextSteps}</h2>
         <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-slate-300">
-          <li>Pay using your selected method.</li>
-          <li>Send proof to WhatsApp.</li>
-          <li>Wait for status update: Pending Payment -&gt; Paid -&gt; Delivered.</li>
+          <li>{copy.nextStepPay}</li>
+          <li>{copy.nextStepSendProof}</li>
+          <li>{copy.nextStepWaitStatus}</li>
         </ol>
         <Link target="_blank" href={whatsappUrl(whatsappMessage)} className="mt-4 inline-block">
-          <Button>Send proof via WhatsApp</Button>
+          <Button>{copy.sendProofWhatsapp}</Button>
         </Link>
       </Card>
 
       {params.order && params.token ? (
         <Card>
-          <h3 className="font-semibold text-white">Upload Proof Here (Optional)</h3>
-          <p className="mt-1 text-sm text-slate-400">You can upload the screenshot now or later.</p>
+          <h3 className="font-semibold text-white">{copy.uploadProofOptionalTitle}</h3>
+          <p className="mt-1 text-sm text-slate-400">{copy.uploadProofOptionalDesc}</p>
           <div className="mt-3">
-            <UploadProofForm orderId={params.order} token={params.token} />
+            <UploadProofForm orderId={params.order} token={params.token} lang={lang} />
           </div>
         </Card>
       ) : null}
 
       {params.order ? (
         <Link href={`/orders/${params.order}?token=${params.token ?? ""}`}>
-          <Button variant="secondary">View order page</Button>
+          <Button variant="secondary">{copy.viewOrderPage}</Button>
         </Link>
       ) : null}
     </div>

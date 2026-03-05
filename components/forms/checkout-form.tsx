@@ -77,7 +77,7 @@ export function CheckoutForm({ total, lang }: { total: number; lang: Lang }) {
         <label className="block">
           <span className="mb-1 block text-sm font-medium text-slate-200">{copy.name}</span>
           <input className="" {...register("customer_name")} />
-          <p className="mt-1 text-xs text-slate-500">Full name used for order verification.</p>
+          <p className="mt-1 text-xs text-slate-500">{copy.fullNameVerificationHint}</p>
           <p className="mt-1 text-xs text-rose-300">{formState.errors.customer_name?.message}</p>
         </label>
         <label className="block">
@@ -87,7 +87,7 @@ export function CheckoutForm({ total, lang }: { total: number; lang: Lang }) {
             className=""
             {...register("whatsapp_phone")}
           />
-          <p className="mt-1 text-xs text-slate-500">We deliver updates and support via WhatsApp.</p>
+          <p className="mt-1 text-xs text-slate-500">{copy.whatsappSupportHint}</p>
           <p className="mt-1 text-xs text-rose-300">{formState.errors.whatsapp_phone?.message}</p>
         </label>
         <label className="block">
@@ -125,6 +125,7 @@ export function CheckoutForm({ total, lang }: { total: number; lang: Lang }) {
                 <span className="text-slate-400">{copy.amountToSend}:</span>{" "}
                 <span className="font-semibold text-emerald-300">{total} DT</span>
               </p>
+              <p className="text-xs text-amber-200">{copy.includeTransactionFees}</p>
               <p>
                 <span className="text-slate-400">{copy.receiverNumber}:</span>{" "}
                 <span className="font-semibold text-sky-300">
@@ -137,9 +138,7 @@ export function CheckoutForm({ total, lang }: { total: number; lang: Lang }) {
               {((selectedMethod === "flouci" && isFlouciUnset) ||
                 (selectedMethod === "d17" && isD17Unset)) && (
                 <p className="rounded-lg border border-rose-400/40 bg-rose-500/10 px-2 py-1 text-xs text-rose-200">
-                  {lang === "ar"
-                    ? "تنبيه: رقم الدفع غير مضبوط بعد. يرجى إعداد رقم Flouci/D17 في متغيرات البيئة."
-                    : "Warning: payment receiver number is not configured yet. Set Flouci/D17 number in environment variables."}
+                  {copy.paymentReceiverNotConfigured}
                 </p>
               )}
             </div>

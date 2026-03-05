@@ -3,10 +3,12 @@ import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Lang, t } from "@/lib/i18n";
 import { formatDt, shouldUseUnoptimizedImage } from "@/lib/utils";
 import { Product } from "@/types";
 
-export function FeaturedSlider({ products }: { products: Product[] }) {
+export function FeaturedSlider({ products, lang }: { products: Product[]; lang: Lang }) {
+  const copy = t(lang);
   return (
     <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {products.map((product) => (
@@ -31,13 +33,13 @@ export function FeaturedSlider({ products }: { products: Product[] }) {
             <div className="absolute inset-0 bg-gradient-to-t from-[#0a1222]/70 to-transparent" />
           </div>
           <div className="flex items-center justify-between">
-            <Badge className="border-purple-400/40 bg-purple-500/10 text-purple-200">Top Seller</Badge>
+            <Badge className="border-purple-400/40 bg-purple-500/10 text-purple-200">{copy.topSeller}</Badge>
             <span className="text-sm font-semibold text-sky-200">{formatDt(product.price_dt)}</span>
           </div>
           <h3 className="mt-3 line-clamp-1 text-lg font-semibold text-white">{product.name}</h3>
           <p className="mt-1 line-clamp-2 text-sm text-slate-300">{product.short_description}</p>
           <span className="mt-4 inline-flex items-center text-sm font-medium text-sky-300">
-            View product
+            {copy.view}
             <ArrowRight className="ml-1 h-4 w-4" />
           </span>
         </Link>

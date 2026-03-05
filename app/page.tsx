@@ -29,10 +29,14 @@ import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/i18n-server";
 import { shouldUseUnoptimizedImage, whatsappUrl } from "@/lib/utils";
 
-export const metadata: Metadata = {
-  title: "Home",
-  description: "Premium digital services in Tunisia with instant support.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getLang();
+  const copy = t(lang);
+  return {
+    title: copy.home,
+    description: copy.metaHomeDesc,
+  };
+}
 
 export default async function Home() {
   const [categories, featured, feedbacks, lang] = await Promise.all([
@@ -154,7 +158,7 @@ export default async function Home() {
         <h2 className="section-title">{copy.featuredProducts}</h2>
         <p className="mt-1 text-sm text-slate-400">{copy.featuredSwipeHint}</p>
         <div className="mt-4">
-          <FeaturedSlider products={featured} />
+          <FeaturedSlider products={featured} lang={lang} />
         </div>
       </section>
 
@@ -162,7 +166,7 @@ export default async function Home() {
         <h2 className="section-title">{copy.topProducts}</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {featured.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product.id} product={product} lang={lang} />
           ))}
         </div>
       </section>

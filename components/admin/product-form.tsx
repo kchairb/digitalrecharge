@@ -12,6 +12,7 @@ import {
   updateProductAction,
   uploadProductImageAction,
 } from "@/lib/actions/admin";
+import { Lang, t } from "@/lib/i18n";
 import { shouldUseUnoptimizedImage } from "@/lib/utils";
 import { productSchema } from "@/lib/validation";
 import { Button } from "@/components/ui/button";
@@ -23,9 +24,11 @@ type Values = z.input<typeof productSchema>;
 type Props = {
   categories: Category[];
   initial?: Product;
+  lang: Lang;
 };
 
-export function ProductForm({ categories, initial }: Props) {
+export function ProductForm({ categories, initial, lang }: Props) {
+  const copy = t(lang);
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [uploading, startUploadTransition] = useTransition();
@@ -53,7 +56,7 @@ export function ProductForm({ categories, initial }: Props) {
         : await createProductAction(values);
 
       if (!result.ok) {
-        setError(result.error ?? "Save failed");
+        setError(result.error ?? copy.saveFailed);
         return;
       }
       router.push("/admin/products");
@@ -63,26 +66,26 @@ export function ProductForm({ categories, initial }: Props) {
 
   return (
     <Card>
-      <h1 className="text-2xl font-bold text-white">{initial ? "Edit Product" : "New Product"}</h1>
+      <h1 className="text-2xl font-bold text-white">{initial ? copy.editProduct : copy.newProduct}</h1>
       <form className="mt-5 grid gap-3 md:grid-cols-2" onSubmit={onSubmit}>
-        <input className="" placeholder="Name" {...register("name")} />
-        <input className="" placeholder="Slug" {...register("slug")} />
+        <input className="" placeholder={copy.name} {...register("name")} />
+        <input className="" placeholder={copy.slug} {...register("slug")} />
         <select className="" {...register("category_id", { valueAsNumber: true })}>
-          <option value="">Select category</option>
+          <option value="">{copy.selectCategory}</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.name}
             </option>
           ))}
         </select>
-        <input className="" type="number" placeholder="Price DT" {...register("price_dt", { valueAsNumber: true })} />
-        <input className="md:col-span-2" placeholder="Short description" {...register("short_description")} />
-        <textarea className="min-h-28 md:col-span-2" placeholder="Long description (markdown)" {...register("long_description")} />
-        <input className="" placeholder="Delivery time" {...register("delivery_time")} />
-        <input className="" placeholder="Image URL" {...register("image_url")} />
+        <input className="" type="number" placeholder={copy.priceDt} {...register("price_dt", { valueAsNumber: true })} />
+        <input className="md:col-span-2" placeholder={copy.shortDescription} {...register("short_description")} />
+        <textarea className="min-h-28 md:col-span-2" placeholder={copy.longDescriptionMarkdown} {...register("long_description")} />
+        <input className="" placeholder={copy.deliveryTime} {...register("delivery_time")} />
+        <input className="" placeholder={copy.imageUrl} {...register("image_url")} />
         <div className="rounded-xl border border-slate-700 bg-slate-950/30 p-3 md:col-span-2">
-          <p className="text-sm font-medium text-slate-200">Upload image</p>
-          <p className="mt-1 text-xs text-slate-500">Upload a product image and it will auto-fill Image URL.</p>
+          <p className="text-sm font-medium text-slate-200">{copy.uploadImage}</p>
+          <p className="mt-1 text-xs text-slate-500">{copy.uploadImageHint}</p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <input
               type="file"
@@ -97,20 +100,20 @@ export function ProductForm({ categories, initial }: Props) {
               onClick={() =>
                 startUploadTransition(async () => {
                   if (!uploadFile) {
-                    setUploadMessage("Select an image first.");
+                    setUploadMessage(copy.selectImageFirst);
                     return;
                   }
                   const result = await uploadProductImageAction(uploadFile);
                   if (!result.ok || !result.url) {
-                    setUploadMessage(result.error ?? "Upload failed.");
+                    setUploadMessage(result.error ?? copy.uploadFailed);
                     return;
                   }
                   setValue("image_url", result.url, { shouldValidate: true, shouldDirty: true });
-                  setUploadMessage("Uploaded and linked successfully.");
+                  setUploadMessage(copy.uploadedLinked);
                 })
               }
             >
-              {uploading ? "Uploading..." : "Upload image"}
+              {uploading ? copy.uploading : copy.uploadImage}
             </Button>
           </div>
           <p className="mt-2 text-xs text-slate-400">{uploadMessage}</p>
@@ -119,7 +122,7 @@ export function ProductForm({ categories, initial }: Props) {
           <div className="relative h-48 overflow-hidden rounded-xl border border-slate-700 md:col-span-2">
             <Image
               src={String(imageUrl)}
-              alt="Product preview"
+              alt={copy.productPreview}
               fill
               sizes="(max-width: 768px) 100vw, 700px"
               unoptimized={shouldUseUnoptimizedImage(String(imageUrl))}
@@ -127,14 +130,14 @@ export function ProductForm({ categories, initial }: Props) {
             />
           </div>
         ) : null}
-        <textarea className="min-h-24" placeholder="Requirements (markdown)" {...register("requirements")} />
-        <textarea className="min-h-24" placeholder="Refund policy (markdown)" {...register("refund_policy")} />
+        <textarea className="min-h-24" placeholder={copy.requirementsMarkdown} {...register("requirements")} />
+        <textarea className="min-h-24" placeholder={copy.refundPolicyMarkdown} {...register("refund_policy")} />
         <label className="inline-flex items-center gap-2 text-sm text-slate-300">
           <input type="checkbox" {...register("is_featured")} />
-          Featured
+          {copy.featured}
         </label>
         <Button type="submit" disabled={pending}>
-          {pending ? "Saving..." : "Save product"}
+          {pending ? copy.saving : copy.saveProduct}
         </Button>
       </form>
       <p className="mt-3 text-xs text-rose-300">

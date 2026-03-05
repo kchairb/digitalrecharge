@@ -1,0 +1,10 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#07131A"/>
+  <circle cx="1020" cy="680" r="260" fill="#0EA5E9" fill-opacity="0.2"/>
+  <circle cx="200" cy="120" r="220" fill="#22C55E" fill-opacity="0.18"/>
+  <rect x="120" y="170" width="960" height="460" rx="28" fill="#0F172A" stroke="#334155" stroke-width="2"/>
+  <text x="170" y="320" fill="#E2E8F0" font-size="80" font-family="Arial" font-weight="700">Perplexity Pro</text>
+  <text x="170" y="390" fill="#7DD3FC" font-size="34" font-family="Arial">Advanced AI research account</text>
+  <rect x="170" y="450" width="450" height="64" rx="14" fill="#0EA5E9" fill-opacity="0.24" stroke="#38BDF8"/>
+  <text x="200" y="492" fill="#BAE6FD" font-size="29" font-family="Arial">Premium Access</text>
+</svg>

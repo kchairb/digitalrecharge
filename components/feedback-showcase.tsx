@@ -14,7 +14,7 @@ export function FeedbackShowcase({ lang, feedbacks }: { lang: Lang; feedbacks: F
       <div className="mt-4 overflow-hidden">
         {!feedbacks.length ? (
           <Card>
-            <p className="text-sm text-slate-300">No feedback yet. Add customer reviews from admin panel.</p>
+            <p className="text-sm text-slate-300">{copy.noFeedbackYet}</p>
           </Card>
         ) : (
           <div className="feedback-marquee-track flex gap-4">
