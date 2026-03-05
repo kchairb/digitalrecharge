@@ -12,7 +12,11 @@ export const THEME_COLORS = {
   accentBlue: "#38BDF8",
 };
 
-export const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "21600000000";
+const DEFAULT_WHATSAPP_NUMBER = "4407391258738";
+const rawWhatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? DEFAULT_WHATSAPP_NUMBER;
+const normalizedWhatsappNumber = rawWhatsappNumber.replace(/[^\d]/g, "");
+export const WHATSAPP_NUMBER =
+  normalizedWhatsappNumber.length >= 10 ? normalizedWhatsappNumber : DEFAULT_WHATSAPP_NUMBER;
 export const INSTAGRAM_URL =
   process.env.NEXT_PUBLIC_INSTAGRAM_URL ?? "https://instagram.com/digitalrecharge.tn";
 export const FACEBOOK_URL =
