@@ -9,6 +9,7 @@ import { getProductsByIds } from "@/lib/data";
 import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/i18n-server";
 import { formatDt } from "@/lib/utils";
+import { buildConfiguredLabel } from "@/lib/product-customization";
 
 export const metadata: Metadata = {
   title: "Cart",
@@ -28,11 +29,25 @@ export default async function CartPage() {
       if (!product) return null;
       return {
         product,
+        lineId: item.lineId,
         quantity: item.quantity,
-        subtotal: product.price_dt * item.quantity,
+        unitPriceDt: item.unitPriceDt ?? product.price_dt,
+        label: buildConfiguredLabel(product.name, {
+          provider: item.provider,
+          amountUsd: item.amountUsd,
+          customRequest: item.customRequest,
+        }),
+        subtotal: (item.unitPriceDt ?? product.price_dt) * item.quantity,
       };
     })
-    .filter(Boolean) as Array<{ product: (typeof products)[number]; quantity: number; subtotal: number }>;
+    .filter(Boolean) as Array<{
+    product: (typeof products)[number];
+    lineId: string;
+    quantity: number;
+    unitPriceDt: number;
+    label: string;
+    subtotal: number;
+  }>;
 
   const total = lines.reduce((sum, line) => sum + line.subtotal, 0);
 
@@ -51,14 +66,14 @@ export default async function CartPage() {
           <Card className="space-y-4">
             {lines.map((line) => (
               <div
-                key={line.product.id}
+                key={line.lineId}
                 className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3 last:border-none"
               >
                 <div>
-                  <p className="font-semibold text-white">{line.product.name}</p>
-                  <p className="text-sm text-slate-400">{formatDt(line.product.price_dt)} each</p>
+                  <p className="font-semibold text-white">{line.label}</p>
+                  <p className="text-sm text-slate-400">{formatDt(line.unitPriceDt)} each</p>
                 </div>
-                <CartLineItemActions productId={line.product.id} quantity={line.quantity} />
+                <CartLineItemActions lineId={line.lineId} quantity={line.quantity} />
                 <p className="font-semibold text-sky-300">{formatDt(line.subtotal)}</p>
               </div>
             ))}

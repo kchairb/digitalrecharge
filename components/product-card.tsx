@@ -6,11 +6,13 @@ import { AddToCartButton } from "@/components/add-to-cart-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getCustomProductKind } from "@/lib/product-customization";
 import { formatDt, shouldUseUnoptimizedImage, whatsappUrl } from "@/lib/utils";
 import { Product } from "@/types";
 
 export function ProductCard({ product }: { product: Product }) {
   const isInstant = product.delivery_time.toLowerCase().includes("instant");
+  const isCustomizable = Boolean(getCustomProductKind(product));
 
   return (
     <Card className="group flex h-full flex-col justify-between overflow-hidden p-0 transition-all duration-300 hover:-translate-y-1 hover:border-sky-400/30 hover:shadow-[0_0_28px_rgba(56,189,248,0.18)]">
@@ -61,7 +63,13 @@ export function ProductCard({ product }: { product: Product }) {
               <ArrowUpRight className="ml-1 h-3.5 w-3.5" />
             </Button>
           </Link>
-          <AddToCartButton productId={product.id} className="w-full" />
+          {isCustomizable ? (
+            <Link href={`/product/${product.slug}`}>
+              <Button className="w-full">Configure</Button>
+            </Link>
+          ) : (
+            <AddToCartButton productId={product.id} className="w-full" />
+          )}
         </div>
         <Link href={`/product/${product.slug}`}>
           <Button className="w-full shadow-[0_0_20px_rgba(139,92,246,0.35)]">Buy now</Button>

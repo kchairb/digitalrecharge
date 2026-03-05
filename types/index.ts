@@ -62,8 +62,13 @@ export type OrderItem = {
 };
 
 export type CartItem = {
+  lineId: string;
   productId: number;
   quantity: number;
+  unitPriceDt?: number;
+  provider?: string;
+  amountUsd?: number;
+  customRequest?: string;
 };
 
 export type Feedback = {

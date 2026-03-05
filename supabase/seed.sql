@@ -1,10 +1,10 @@
 insert into public.categories (name, slug, image_url)
 values
-  ('AI Tools', 'ai-tools', 'https://images.unsplash.com/photo-1677442136019-21780ecad995'),
-  ('Streaming', 'streaming', 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85'),
-  ('Design', 'design', 'https://images.unsplash.com/photo-1558655146-9f40138edfeb'),
-  ('Virtual Cards', 'virtual-cards', 'https://images.unsplash.com/photo-1556740749-887f6717d7e4'),
-  ('Gift Cards', 'gift-cards', 'https://images.unsplash.com/photo-1513885535751-8b9238bd345a')
+  ('AI Tools', 'ai-tools', '/products/category-ai-tools.svg'),
+  ('Streaming', 'streaming', '/products/category-streaming.svg'),
+  ('Design', 'design', '/products/category-design.svg'),
+  ('Virtual Cards', 'virtual-cards', '/products/category-vcc.svg'),
+  ('Gift Cards', 'gift-cards', '/products/category-gift.svg')
 on conflict (slug) do update set name = excluded.name, image_url = excluded.image_url;
 
 with category_ids as (
@@ -26,7 +26,7 @@ values
     'Provide contact details for secure handover.',
     'Refund if account cannot be delivered.',
     true,
-    'https://images.unsplash.com/photo-1677442136019-21780ecad995'
+    '/products/chatgpt-account.svg'
   ),
   (
     'ChatGPT Plus (Your Account)',
@@ -39,7 +39,7 @@ values
     'You need account access details temporarily.',
     'Refund only if activation fails.',
     true,
-    'https://images.unsplash.com/photo-1677442135968-6f3f80a6ab33'
+    '/products/chatgpt-plus.svg'
   ),
   (
     'Netflix',
@@ -52,7 +52,7 @@ values
     'Country compatibility may be required.',
     'No refund after successful delivery.',
     true,
-    'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85'
+    '/products/netflix.svg'
   ),
   (
     'Spotify Premium',
@@ -65,7 +65,7 @@ values
     'Valid account email required.',
     'Refund if activation is not possible.',
     true,
-    'https://images.unsplash.com/photo-1614680376408-81e91ffe3db7'
+    '/products/spotify.svg'
   ),
   (
     'Canva Pro',
@@ -78,7 +78,7 @@ values
     'Email/account invite may be required.',
     'No refund after activation.',
     true,
-    'https://images.unsplash.com/photo-1558655146-9f40138edfeb'
+    '/products/canva.svg'
   ),
   (
     'VCC $5',
@@ -91,7 +91,7 @@ values
     'Identity confirmation may be requested.',
     'Refund only if card is not issued.',
     false,
-    'https://images.unsplash.com/photo-1556740749-887f6717d7e4'
+    '/products/vcc.svg'
   ),
   (
     'VCC $10',
@@ -104,7 +104,7 @@ values
     'Identity confirmation may be requested.',
     'Refund only if card is not issued.',
     false,
-    'https://images.unsplash.com/photo-1556740749-887f6717d7e4'
+    '/products/vcc.svg'
   ),
   (
     'VCC $20',
@@ -117,7 +117,7 @@ values
     'Identity confirmation may be requested.',
     'Refund only if card is not issued.',
     true,
-    'https://images.unsplash.com/photo-1556740749-887f6717d7e4'
+    '/products/vcc.svg'
   ),
   (
     'Gift Card $10',
@@ -130,7 +130,7 @@ values
     'Specify target platform when ordering.',
     'No refund after valid code delivery.',
     true,
-    'https://images.unsplash.com/photo-1513885535751-8b9238bd345a'
+    '/products/gift-card.svg'
   )
 on conflict (slug) do update
 set

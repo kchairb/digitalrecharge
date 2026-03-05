@@ -9,6 +9,7 @@ import { getCart } from "@/lib/cart";
 import { getProductsByIds } from "@/lib/data";
 import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/i18n-server";
+import { buildConfiguredLabel } from "@/lib/product-customization";
 import { formatDt, whatsappUrl } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -24,7 +25,8 @@ export default async function CheckoutPage() {
   const productMap = new Map(products.map((p) => [p.id, p]));
   const total = cart.reduce((sum, item) => {
     const product = productMap.get(item.productId);
-    return sum + (product?.price_dt ?? 0) * item.quantity;
+    const unitPriceDt = item.unitPriceDt ?? product?.price_dt ?? 0;
+    return sum + unitPriceDt * item.quantity;
   }, 0);
 
   if (!cart.length) {
@@ -49,9 +51,15 @@ export default async function CheckoutPage() {
           {cart.map((item) => {
             const product = productMap.get(item.productId);
             if (!product) return null;
+            const label = buildConfiguredLabel(product.name, {
+              provider: item.provider,
+              amountUsd: item.amountUsd,
+              customRequest: item.customRequest,
+            });
+            const unitPriceDt = item.unitPriceDt ?? product.price_dt;
             return (
-              <p key={item.productId}>
-                {item.quantity} x {product.name} - {formatDt(product.price_dt * item.quantity)}
+              <p key={item.lineId}>
+                {item.quantity} x {label} - {formatDt(unitPriceDt * item.quantity)}
               </p>
             );
           })}

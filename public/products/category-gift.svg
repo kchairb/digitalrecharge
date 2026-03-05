@@ -1,0 +1,5 @@
+<svg width="800" height="500" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="500" fill="#1A1020"/>
+  <circle cx="660" cy="100" r="150" fill="#F59E0B" fill-opacity="0.25"/>
+  <text x="80" y="250" fill="#F3F4F6" font-size="62" font-family="Arial" font-weight="700">Gift Cards</text>
+</svg>

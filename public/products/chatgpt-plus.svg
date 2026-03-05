@@ -1,0 +1,10 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#080A14"/>
+  <circle cx="170" cy="120" r="210" fill="#38BDF8" fill-opacity="0.18"/>
+  <circle cx="1030" cy="660" r="260" fill="#A855F7" fill-opacity="0.22"/>
+  <rect x="120" y="170" width="960" height="460" rx="28" fill="#0F172A" stroke="#334155" stroke-width="2"/>
+  <text x="170" y="320" fill="#E2E8F0" font-size="76" font-family="Arial" font-weight="700">ChatGPT Plus</text>
+  <text x="170" y="390" fill="#C4B5FD" font-size="36" font-family="Arial">Upgrade on your own account</text>
+  <rect x="170" y="450" width="420" height="64" rx="14" fill="#8B5CF6" fill-opacity="0.22" stroke="#A78BFA"/>
+  <text x="200" y="492" fill="#DDD6FE" font-size="30" font-family="Arial">Fast Activation</text>
+</svg>

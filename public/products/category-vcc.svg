@@ -1,0 +1,5 @@
+<svg width="800" height="500" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="500" fill="#0A1020"/>
+  <circle cx="680" cy="390" r="150" fill="#6366F1" fill-opacity="0.24"/>
+  <text x="80" y="250" fill="#E2E8F0" font-size="58" font-family="Arial" font-weight="700">Virtual Cards</text>
+</svg>

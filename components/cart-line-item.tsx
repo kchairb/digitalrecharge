@@ -6,11 +6,11 @@ import { removeFromCartAction, updateCartQuantityAction } from "@/lib/actions/ca
 import { Button } from "@/components/ui/button";
 
 type Props = {
-  productId: number;
+  lineId: string;
   quantity: number;
 };
 
-export function CartLineItemActions({ productId, quantity }: Props) {
+export function CartLineItemActions({ lineId, quantity }: Props) {
   const [pending, startTransition] = useTransition();
 
   return (
@@ -18,7 +18,7 @@ export function CartLineItemActions({ productId, quantity }: Props) {
       <Button
         variant="secondary"
         disabled={pending}
-        onClick={() => startTransition(async () => updateCartQuantityAction(productId, quantity - 1))}
+        onClick={() => startTransition(async () => updateCartQuantityAction(lineId, quantity - 1))}
       >
         -
       </Button>
@@ -26,11 +26,11 @@ export function CartLineItemActions({ productId, quantity }: Props) {
       <Button
         variant="secondary"
         disabled={pending}
-        onClick={() => startTransition(async () => updateCartQuantityAction(productId, quantity + 1))}
+        onClick={() => startTransition(async () => updateCartQuantityAction(lineId, quantity + 1))}
       >
         +
       </Button>
-      <Button variant="ghost" disabled={pending} onClick={() => startTransition(async () => removeFromCartAction(productId))}>
+      <Button variant="ghost" disabled={pending} onClick={() => startTransition(async () => removeFromCartAction(lineId))}>
         Remove
       </Button>
     </div>

@@ -7,6 +7,7 @@ import { getProductsByIds } from "@/lib/data";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { checkoutSchema } from "@/lib/validation";
+import { buildConfiguredLabel } from "@/lib/product-customization";
 import { generateOrderNumber } from "@/lib/utils";
 
 function toNullableEmail(email?: string) {
@@ -51,7 +52,7 @@ export async function placeOrderAction(input: {
   const amountMap = new Map(products.map((product) => [product.id, product.price_dt]));
   const nameMap = new Map(products.map((product) => [product.id, product.name]));
   const total = cart.reduce(
-    (sum, item) => sum + (amountMap.get(item.productId) ?? 0) * item.quantity,
+    (sum, item) => sum + (item.unitPriceDt ?? amountMap.get(item.productId) ?? 0) * item.quantity,
     0,
   );
 
@@ -84,8 +85,12 @@ export async function placeOrderAction(input: {
   const itemsToInsert = cart.map((item) => ({
     order_id: order.id,
     product_id: item.productId,
-    product_name: nameMap.get(item.productId) ?? "Product",
-    unit_price_dt: amountMap.get(item.productId) ?? 0,
+    product_name: buildConfiguredLabel(nameMap.get(item.productId) ?? "Product", {
+      provider: item.provider,
+      amountUsd: item.amountUsd,
+      customRequest: item.customRequest,
+    }),
+    unit_price_dt: item.unitPriceDt ?? amountMap.get(item.productId) ?? 0,
     quantity: item.quantity,
   }));
 

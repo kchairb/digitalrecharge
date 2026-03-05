@@ -21,6 +21,16 @@ export const authSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
+export const signupSchema = z.object({
+  full_name: z.string().min(2, "Name is required"),
+  whatsapp_phone: z
+    .string()
+    .min(8, "Phone is required")
+    .regex(/^\+?[0-9\s-]{8,20}$/, "Invalid phone number"),
+  email: z.string().email("Invalid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
 export const categorySchema = z.object({
   name: z.string().min(2, "Category name is required"),
   slug: z.string().min(2, "Slug is required"),

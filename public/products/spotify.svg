@@ -1,0 +1,10 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#07110C"/>
+  <circle cx="970" cy="700" r="280" fill="#16A34A" fill-opacity="0.2"/>
+  <circle cx="170" cy="120" r="220" fill="#22C55E" fill-opacity="0.2"/>
+  <rect x="120" y="170" width="960" height="460" rx="28" fill="#0F172A" stroke="#334155" stroke-width="2"/>
+  <text x="170" y="320" fill="#E2E8F0" font-size="82" font-family="Arial" font-weight="700">Spotify Premium</text>
+  <text x="170" y="390" fill="#86EFAC" font-size="36" font-family="Arial">Ad-free listening</text>
+  <rect x="170" y="450" width="360" height="64" rx="14" fill="#22C55E" fill-opacity="0.22" stroke="#4ADE80"/>
+  <text x="200" y="492" fill="#DCFCE7" font-size="30" font-family="Arial">Music Ready</text>
+</svg>

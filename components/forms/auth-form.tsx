@@ -8,11 +8,13 @@ import { z } from "zod";
 
 import { signInAction, signUpAction } from "@/lib/actions/auth";
 import { type Lang, t } from "@/lib/i18n";
-import { authSchema } from "@/lib/validation";
+import { authSchema, signupSchema } from "@/lib/validation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-type Values = z.infer<typeof authSchema>;
+type LoginValues = z.infer<typeof authSchema>;
+type SignupValues = z.infer<typeof signupSchema>;
+type Values = LoginValues & Partial<SignupValues>;
 
 export function AuthForm({ mode, lang }: { mode: "login" | "signup"; lang: Lang }) {
   const copy = t(lang);
@@ -20,17 +22,25 @@ export function AuthForm({ mode, lang }: { mode: "login" | "signup"; lang: Lang 
   const [serverError, setServerError] = useState("");
   const [pending, startTransition] = useTransition();
   const { register, handleSubmit, formState } = useForm<Values>({
-    resolver: zodResolver(authSchema),
+    resolver: zodResolver(mode === "signup" ? signupSchema : authSchema),
   });
 
   const onSubmit = handleSubmit((values) => {
     startTransition(async () => {
-      const result = mode === "login" ? await signInAction(values) : await signUpAction(values);
+      const result =
+        mode === "login"
+          ? await signInAction({ email: values.email, password: values.password })
+          : await signUpAction({
+              full_name: values.full_name ?? "",
+              whatsapp_phone: values.whatsapp_phone ?? "",
+              email: values.email,
+              password: values.password,
+            });
       if (!result.ok) {
         setServerError(result.error ?? "Action failed");
         return;
       }
-      router.push(mode === "login" ? "/account/orders" : "/login");
+      router.push("/account/orders");
       router.refresh();
     });
   });
@@ -42,6 +52,23 @@ export function AuthForm({ mode, lang }: { mode: "login" | "signup"; lang: Lang 
         {mode === "login" ? copy.signinDesc : copy.signupDesc}
       </p>
       <form onSubmit={onSubmit} className="mt-5 space-y-4">
+        {mode === "signup" ? (
+          <>
+            <label className="block">
+              <span className="mb-1 block text-sm font-medium text-slate-200">{copy.name}</span>
+              <input type="text" className="" {...register("full_name")} />
+              <p className="mt-1 text-xs text-rose-300">{formState.errors.full_name?.message as string}</p>
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-sm font-medium text-slate-200">{copy.whatsappPhone}</span>
+              <input type="tel" className="" {...register("whatsapp_phone")} />
+              <p className="mt-1 text-xs text-slate-500">
+                {lang === "ar" ? "رقم صالح لتحديثات الطلب عبر واتساب." : "Valid number for order updates on WhatsApp."}
+              </p>
+              <p className="mt-1 text-xs text-rose-300">{formState.errors.whatsapp_phone?.message as string}</p>
+            </label>
+          </>
+        ) : null}
         <label className="block">
           <span className="mb-1 block text-sm font-medium text-slate-200">{copy.email}</span>
           <input

@@ -6,11 +6,13 @@ import ReactMarkdown from "react-markdown";
 import { CheckCircle2, ShieldCheck, Sparkles, Zap } from "lucide-react";
 
 import { AddToCartButton } from "@/components/add-to-cart-button";
+import { ProductConfigPanel } from "@/components/product-config-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getProductBySlug } from "@/lib/data";
-import { formatDt, shouldUseUnoptimizedImage, whatsappUrl } from "@/lib/utils";
+import { getCustomProductKind } from "@/lib/product-customization";
+import { formatDt, shouldUseUnoptimizedImage } from "@/lib/utils";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -43,9 +45,10 @@ export default async function ProductPage({ params }: Props) {
   const product = await getProductBySlug(slug);
   if (!product) notFound();
   const isInstant = product.delivery_time.toLowerCase().includes("instant");
+  const customKind = getCustomProductKind(product);
 
   return (
-    <div className="space-y-6 pb-24 sm:pb-0">
+    <div id="top" className="space-y-6 pb-24 sm:pb-0">
       <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
         <Card className="overflow-hidden p-0">
           <div className="relative h-72 sm:h-[420px]">
@@ -93,22 +96,7 @@ export default async function ProductPage({ params }: Props) {
             ) : null}
           </div>
 
-          <div className="mt-5 space-y-2">
-            <AddToCartButton productId={product.id} label="Buy now" />
-            <Link
-              target="_blank"
-              href={whatsappUrl(`Hello, I want to order ${product.name} (${formatDt(product.price_dt)}).`)}
-            >
-              <Button variant="secondary" className="w-full">
-                Order via WhatsApp
-              </Button>
-            </Link>
-            <Link href="/cart">
-              <Button variant="ghost" className="w-full">
-                Go to cart
-              </Button>
-            </Link>
-          </div>
+          <ProductConfigPanel product={product} />
 
           <div className="mt-5 space-y-2 text-sm text-slate-300">
             <p className="inline-flex items-center gap-2">
@@ -149,7 +137,13 @@ export default async function ProductPage({ params }: Props) {
       <div className="fixed right-0 bottom-0 left-0 z-40 border-t border-slate-700 bg-[#0b1220]/95 p-3 backdrop-blur md:hidden">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
           <p className="text-lg font-bold text-sky-200">{formatDt(product.price_dt)}</p>
-          <AddToCartButton productId={product.id} label="Buy now" className="w-auto min-w-36 px-5" />
+          {customKind ? (
+            <Link href="#top">
+              <Button className="w-auto min-w-36 px-5">Configure</Button>
+            </Link>
+          ) : (
+            <AddToCartButton productId={product.id} label="Buy now" className="w-auto min-w-36 px-5" />
+          )}
         </div>
       </div>
     </div>

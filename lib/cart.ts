@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 
 import { CartItem } from "@/types";
+import { makeLineId } from "@/lib/product-customization";
 
 const CART_COOKIE = "dr_cart";
 
@@ -14,7 +15,19 @@ export async function getCart(): Promise<CartItem[]> {
 
   try {
     const parsed = JSON.parse(raw) as CartItem[];
-    return parsed.filter((item) => item.productId > 0 && item.quantity > 0);
+    return parsed
+      .filter((item) => item.productId > 0 && item.quantity > 0)
+      .map((item) => ({
+        ...item,
+        lineId:
+          item.lineId && item.lineId.trim().length > 0
+            ? item.lineId
+            : makeLineId(item.productId, {
+                provider: item.provider,
+                amountUsd: item.amountUsd,
+                customRequest: item.customRequest,
+              }),
+      }));
   } catch {
     return [];
   }
