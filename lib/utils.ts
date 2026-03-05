@@ -23,6 +23,22 @@ export function whatsappUrl(message: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
+export function whatsappSupportMessage() {
+  return `السلام عليكم،
+نحب نطلب خدمة من DigitalRecharge.tn`;
+}
+
+export function whatsappProductOrderMessage(productName: string) {
+  return `السلام عليكم،
+
+نحب نطلب الخدمة التالية:
+
+الخدمة: ${productName}
+طريقة الدفع: Flouci أو D17
+
+يرجى تأكيد التوفر.`;
+}
+
 export function generateOrderNumber() {
   const stamp = Date.now().toString().slice(-8);
   const random = Math.floor(Math.random() * 900 + 100);

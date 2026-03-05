@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Lang, t } from "@/lib/i18n";
 import { getCustomProductKind, isMonthlyPricedProduct } from "@/lib/product-customization";
-import { formatDt, shouldUseUnoptimizedImage, whatsappUrl } from "@/lib/utils";
+import { formatDt, shouldUseUnoptimizedImage, whatsappProductOrderMessage, whatsappUrl } from "@/lib/utils";
 import { Product } from "@/types";
 
 export function ProductCard({ product, lang }: { product: Product; lang: Lang }) {
@@ -80,7 +80,7 @@ export function ProductCard({ product, lang }: { product: Product; lang: Lang })
         <Link href={`/product/${product.slug}`}>
           <Button className="w-full shadow-[0_0_20px_rgba(139,92,246,0.35)]">{copy.buyNow}</Button>
         </Link>
-        <Link href={whatsappUrl(`Hello, I want to order ${product.name} (${formatDt(product.price_dt)}).`)} target="_blank">
+        <Link href={whatsappUrl(whatsappProductOrderMessage(product.name))} target="_blank">
           <Button variant="ghost" className="w-full">
             {copy.orderWhatsapp}
           </Button>

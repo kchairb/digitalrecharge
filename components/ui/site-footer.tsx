@@ -4,7 +4,7 @@ import { Facebook, Instagram, Send } from "lucide-react";
 import { DEVTRX_CONTACT_URL, FACEBOOK_URL, INSTAGRAM_URL } from "@/lib/constants";
 import { t, type Lang } from "@/lib/i18n";
 import { BrandMark } from "@/components/ui/brand-mark";
-import { whatsappUrl } from "@/lib/utils";
+import { whatsappSupportMessage, whatsappUrl } from "@/lib/utils";
 
 export function SiteFooter({ lang }: { lang: Lang }) {
   const copy = t(lang);
@@ -44,7 +44,7 @@ export function SiteFooter({ lang }: { lang: Lang }) {
           <p className="mt-1">{copy.supportLabel}</p>
           <div className="mt-4 flex items-center gap-2 text-slate-300">
             <Link
-              href={whatsappUrl("Hello, I need support.")}
+              href={whatsappUrl(whatsappSupportMessage())}
               target="_blank"
               rel="noreferrer"
               className="rounded-lg border border-slate-700 p-2 hover:border-sky-400/60"

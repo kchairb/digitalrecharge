@@ -16,7 +16,7 @@ import {
   getCustomProductKind,
 } from "@/lib/product-customization";
 import { type Lang, t } from "@/lib/i18n";
-import { formatDt, whatsappUrl } from "@/lib/utils";
+import { formatDt, whatsappProductOrderMessage, whatsappUrl } from "@/lib/utils";
 import type { Product } from "@/types";
 
 export function ProductConfigPanel({ product, lang }: { product: Product; lang: Lang }) {
@@ -47,7 +47,7 @@ export function ProductConfigPanel({ product, lang }: { product: Product; lang: 
         <AddToCartButton productId={product.id} label={copy.buyNow} />
         <Link
           target="_blank"
-          href={whatsappUrl(`Hello, I want to order ${product.name} (${formatDt(product.price_dt)}).`)}
+          href={whatsappUrl(whatsappProductOrderMessage(product.name))}
         >
           <Button variant="secondary" className="w-full">
             {copy.orderWhatsapp}
@@ -140,9 +140,7 @@ export function ProductConfigPanel({ product, lang }: { product: Product; lang: 
       <AddToCartButton productId={product.id} label={copy.addConfiguredOrder} customization={customization} />
       <Link
         target="_blank"
-        href={whatsappUrl(
-          `Hello, I want to order ${buildConfiguredLabel(product.name, customization)} (${formatDt(product.price_dt)} base).`,
-        )}
+        href={whatsappUrl(whatsappProductOrderMessage(buildConfiguredLabel(product.name, customization)))}
       >
         <Button variant="secondary" className="w-full">
           {copy.orderWhatsapp}

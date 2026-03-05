@@ -27,7 +27,7 @@ import { FACEBOOK_URL, INSTAGRAM_URL } from "@/lib/constants";
 import { getCategories, getFeaturedProducts, getPublishedFeedbacks } from "@/lib/data";
 import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/i18n-server";
-import { shouldUseUnoptimizedImage, whatsappUrl } from "@/lib/utils";
+import { shouldUseUnoptimizedImage, whatsappSupportMessage, whatsappUrl } from "@/lib/utils";
 
 export async function generateMetadata(): Promise<Metadata> {
   const lang = await getLang();
@@ -71,7 +71,7 @@ export default async function Home() {
           <Link href="/shop">
             <Button>{copy.shopNow}</Button>
           </Link>
-          <Link href={whatsappUrl("Hello DigitalRecharge.tn, I want to place an order.")} target="_blank">
+          <Link href={whatsappUrl(whatsappSupportMessage())} target="_blank">
             <Button variant="secondary">{copy.orderWhatsapp}</Button>
           </Link>
         </div>
