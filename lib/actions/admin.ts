@@ -3,6 +3,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { categorySchema, feedbackSchema, orderStatusSchema, productSchema } from "@/lib/validation";
 import { toSlug } from "@/lib/utils";
 
@@ -204,4 +205,44 @@ export async function deleteFeedbackAction(id: number) {
   revalidatePath("/");
   revalidateTag("feedbacks", "max");
   return { ok: true };
+}
+
+export async function uploadProductImageAction(file: File) {
+  if (!file || file.size <= 0) {
+    return { ok: false, error: "Select an image first." };
+  }
+
+  const serverClient = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await serverClient.auth.getUser();
+  if (!user) {
+    return { ok: false, error: "Unauthorized." };
+  }
+
+  const adminCheck = await getSupabaseAdmin()
+    .from("profiles")
+    .select("is_admin")
+    .eq("user_id", user.id)
+    .single();
+  if (!adminCheck.data?.is_admin) {
+    return { ok: false, error: "Only admins can upload product images." };
+  }
+
+  const ext = (file.name.split(".").pop() || "png").toLowerCase();
+  const safeExt = ext.replace(/[^a-z0-9]/g, "") || "png";
+  const path = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${safeExt}`;
+  const bytes = await file.arrayBuffer();
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.storage
+    .from("product-images")
+    .upload(path, bytes, { contentType: file.type || "image/png", upsert: false });
+
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+
+  const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+  return { ok: true, url: data.publicUrl };
 }

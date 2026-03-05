@@ -51,6 +51,8 @@ export function CheckoutForm({ total, lang }: { total: number; lang: Lang }) {
     defaultValues: { payment_method: "flouci" },
   });
   const selectedMethod = watch("payment_method");
+  const isFlouciUnset = PAYMENT_RECEIVERS.flouci === "TO_BE_SET";
+  const isD17Unset = PAYMENT_RECEIVERS.d17 === "TO_BE_SET";
 
   const onSubmit = handleSubmit((values) => {
     startTransition(async () => {
@@ -132,6 +134,14 @@ export function CheckoutForm({ total, lang }: { total: number; lang: Lang }) {
                 </span>
               </p>
               <p className="text-xs text-slate-500">{copy.afterPaymentProof}</p>
+              {((selectedMethod === "flouci" && isFlouciUnset) ||
+                (selectedMethod === "d17" && isD17Unset)) && (
+                <p className="rounded-lg border border-rose-400/40 bg-rose-500/10 px-2 py-1 text-xs text-rose-200">
+                  {lang === "ar"
+                    ? "تنبيه: رقم الدفع غير مضبوط بعد. يرجى إعداد رقم Flouci/D17 في متغيرات البيئة."
+                    : "Warning: payment receiver number is not configured yet. Set Flouci/D17 number in environment variables."}
+                </p>
+              )}
             </div>
           ) : (
             <div className="mt-2 space-y-2 text-sm text-slate-300">
