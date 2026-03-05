@@ -175,7 +175,7 @@ export async function uploadProofForOrderAction(input: {
   const supabase = getSupabaseAdmin();
   const { data: order } = await supabase
     .from("orders")
-    .select("id, public_token, order_number, customer_name, whatsapp_phone, email")
+    .select("id, public_token, order_number, customer_name, whatsapp_phone, email, payment_method")
     .eq("id", input.orderId)
     .single();
 
@@ -196,6 +196,7 @@ export async function uploadProofForOrderAction(input: {
       customerName: order.customer_name,
       whatsappPhone: order.whatsapp_phone,
       email: order.email,
+      paymentMethod: order.payment_method,
       proofImageUrl: proofUrl,
     });
   }

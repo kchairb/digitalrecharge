@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { PAYMENT_METHOD_LABELS } from "@/lib/constants";
 import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/i18n-server";
-import { whatsappUrl } from "@/lib/utils";
+import { whatsappProofMessage, whatsappUrl } from "@/lib/utils";
 
 export async function generateMetadata(): Promise<Metadata> {
   const lang = await getLang();
@@ -36,7 +36,7 @@ export default async function OrderCreatedPage({ searchParams }: Props) {
   const orderNumber = params.number ?? "N/A";
   const total = Number(params.total ?? 0);
   const paymentMethod = (params.method && PAYMENT_METHOD_LABELS[params.method]) || copy.paymentMethodShort;
-  const whatsappMessage = `Order ${orderNumber} created. Total ${total} DT. I will send payment proof now.`;
+  const whatsappMessage = whatsappProofMessage(orderNumber, total);
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">

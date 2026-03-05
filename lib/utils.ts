@@ -39,6 +39,17 @@ export function whatsappProductOrderMessage(productName: string) {
 يرجى تأكيد التوفر.`;
 }
 
+export function whatsappProofMessage(orderNumber: string, totalDt: number) {
+  return `السلام عليكم،
+
+تم إنشاء طلبي بنجاح.
+رقم الطلب: ${orderNumber}
+المجموع: ${totalDt} DT
+
+سأرسل إثبات الدفع الآن.
+يرجى تأكيد الاستلام.`;
+}
+
 export function generateOrderNumber() {
   const stamp = Date.now().toString().slice(-8);
   const random = Math.floor(Math.random() * 900 + 100);

@@ -11,7 +11,7 @@ import { Building2, MessageCircleMore } from "lucide-react";
 import { placeOrderAction } from "@/lib/actions/orders";
 import { PAYMENT_METHOD_LABELS, PAYMENT_RECEIVERS } from "@/lib/constants";
 import { type Lang, t } from "@/lib/i18n";
-import { whatsappUrl } from "@/lib/utils";
+import { whatsappSupportMessage, whatsappUrl } from "@/lib/utils";
 import { checkoutSchema } from "@/lib/validation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -45,7 +45,6 @@ export function CheckoutForm({ total, lang }: { total: number; lang: Lang }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [serverError, setServerError] = useState("");
-  const [file, setFile] = useState<File | null>(null);
   const { register, handleSubmit, formState, watch } = useForm<Values>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: { payment_method: "flouci" },
@@ -56,7 +55,7 @@ export function CheckoutForm({ total, lang }: { total: number; lang: Lang }) {
 
   const onSubmit = handleSubmit((values) => {
     startTransition(async () => {
-      const result = await placeOrderAction({ ...values, proofFile: file });
+      const result = await placeOrderAction(values);
       if (!result.ok) {
         setServerError(result.error ?? "Unable to place order.");
         return;
@@ -153,20 +152,11 @@ export function CheckoutForm({ total, lang }: { total: number; lang: Lang }) {
           )}
         </div>
 
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-slate-200">{copy.proofScreenshot} ({copy.optional})</span>
-          <input
-            type="file"
-            accept="image/*"
-            className=""
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          />
-        </label>
-
         <div className="rounded-xl border border-slate-700 bg-slate-950/40 p-3">
           <p className="text-sm text-slate-300">{copy.uploadOrSend}</p>
+          <p className="mt-1 text-xs text-slate-500">{copy.proofStepAfterOrder}</p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <Link href={whatsappUrl("Hello, I placed an order and will send proof of payment.")} target="_blank">
+            <Link href={whatsappUrl(whatsappSupportMessage())} target="_blank">
               <Button type="button" variant="secondary" className="inline-flex gap-2">
                 <MessageCircleMore className="h-4 w-4" />
                 {copy.contactWhatsapp}
