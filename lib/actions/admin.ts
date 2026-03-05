@@ -7,6 +7,14 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { categorySchema, feedbackSchema, orderStatusSchema, productSchema } from "@/lib/validation";
 import { toSlug } from "@/lib/utils";
 
+const ALLOWED_IMAGE_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+]);
+const MAX_PRODUCT_IMAGE_SIZE_BYTES = 8 * 1024 * 1024;
+
 export async function createCategoryAction(input: { name: string; slug: string; image_url?: string }) {
   const parsed = categorySchema.safeParse({
     ...input,
@@ -210,6 +218,12 @@ export async function deleteFeedbackAction(id: number) {
 export async function uploadProductImageAction(file: File) {
   if (!file || file.size <= 0) {
     return { ok: false, error: "Select an image first." };
+  }
+  if (!ALLOWED_IMAGE_MIME_TYPES.has((file.type || "").toLowerCase())) {
+    return { ok: false, error: "Only JPG, PNG, or WEBP images are allowed." };
+  }
+  if (file.size > MAX_PRODUCT_IMAGE_SIZE_BYTES) {
+    return { ok: false, error: "Image is too large. Maximum size is 8MB." };
   }
 
   const serverClient = await getSupabaseServerClient();

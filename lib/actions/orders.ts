@@ -15,8 +15,30 @@ function toNullableEmail(email?: string) {
   return email?.trim() ? email.trim() : null;
 }
 
+const ALLOWED_IMAGE_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+]);
+const MAX_PROOF_IMAGE_SIZE_BYTES = 8 * 1024 * 1024;
+
+function validateProofImageFile(file: File) {
+  if (!file || file.size <= 0) return "No image selected.";
+  if (!ALLOWED_IMAGE_MIME_TYPES.has((file.type || "").toLowerCase())) {
+    return "Only JPG, PNG, or WEBP images are allowed.";
+  }
+  if (file.size > MAX_PROOF_IMAGE_SIZE_BYTES) {
+    return "Image is too large. Maximum size is 8MB.";
+  }
+  return null;
+}
+
 async function uploadProof(file: File, orderId: string) {
-  if (!file || file.size <= 0) return null;
+  const fileError = validateProofImageFile(file);
+  if (fileError) {
+    throw new Error(fileError);
+  }
   const supabase = getSupabaseAdmin();
   const path = `order-${orderId}/${Date.now()}-${file.name}`;
   const bytes = await file.arrayBuffer();
@@ -102,6 +124,8 @@ export async function placeOrderAction(input: {
 
   let proofUrl: string | null = null;
   if (input.proofFile && input.proofFile.size > 0) {
+    const fileError = validateProofImageFile(input.proofFile);
+    if (fileError) return { ok: false, error: fileError };
     proofUrl = await uploadProof(input.proofFile, order.id);
     if (proofUrl) {
       await supabase.from("orders").update({ proof_image_url: proofUrl }).eq("id", order.id);
@@ -146,7 +170,8 @@ export async function uploadProofForOrderAction(input: {
   token: string;
   file: File;
 }) {
-  if (!input.file || input.file.size <= 0) return { ok: false, error: "No image selected." };
+  const fileError = validateProofImageFile(input.file);
+  if (fileError) return { ok: false, error: fileError };
   const supabase = getSupabaseAdmin();
   const { data: order } = await supabase
     .from("orders")
