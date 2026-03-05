@@ -2,6 +2,20 @@ import { z } from "zod";
 
 export const paymentMethodSchema = z.enum(["flouci", "d17", "bank_transfer"]);
 
+const imageUrlFieldSchema = z
+  .string()
+  .trim()
+  .refine((value) => {
+    if (!value) return true;
+    if (value.startsWith("/")) return true;
+    try {
+      const parsed = new URL(value);
+      return parsed.protocol === "http:" || parsed.protocol === "https:";
+    } catch {
+      return false;
+    }
+  }, "Image URL must be a valid URL or local path like /products/image.svg");
+
 export const checkoutSchema = z.object({
   customer_name: z.string().min(2, "Name is required"),
   whatsapp_phone: z
@@ -34,7 +48,7 @@ export const signupSchema = z.object({
 export const categorySchema = z.object({
   name: z.string().min(2, "Category name is required"),
   slug: z.string().min(2, "Slug is required"),
-  image_url: z.string().url("Image URL must be valid").optional().or(z.literal("")),
+  image_url: imageUrlFieldSchema.optional().or(z.literal("")),
 });
 
 export const productSchema = z.object({
@@ -47,7 +61,7 @@ export const productSchema = z.object({
   delivery_time: z.string().min(2),
   requirements: z.string().min(2),
   refund_policy: z.string().min(2),
-  image_url: z.string().url("Image URL must be valid").or(z.literal("")),
+  image_url: imageUrlFieldSchema.or(z.literal("")),
   is_featured: z.boolean().default(false),
 });
 
