@@ -6,6 +6,7 @@ import { clearCart, getCart } from "@/lib/cart";
 import { getProductsByIds } from "@/lib/data";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { notifyTelegramNewOrder, notifyTelegramProofUploaded } from "@/lib/telegram";
 import { checkoutSchema } from "@/lib/validation";
 import { buildConfiguredLabel } from "@/lib/product-customization";
 import { generateOrderNumber } from "@/lib/utils";
@@ -51,6 +52,7 @@ export async function placeOrderAction(input: {
 
   const amountMap = new Map(products.map((product) => [product.id, product.price_dt]));
   const nameMap = new Map(products.map((product) => [product.id, product.name]));
+  const imageMap = new Map(products.map((product) => [product.id, product.image_url ?? null]));
   const total = cart.reduce(
     (sum, item) => sum + (item.unitPriceDt ?? amountMap.get(item.productId) ?? 0) * item.quantity,
     0,
@@ -98,12 +100,31 @@ export async function placeOrderAction(input: {
   const { error: itemError } = await supabase.from("order_items").insert(itemsToInsert);
   if (itemError) return { ok: false, error: itemError.message };
 
+  let proofUrl: string | null = null;
   if (input.proofFile && input.proofFile.size > 0) {
-    const proofUrl = await uploadProof(input.proofFile, order.id);
+    proofUrl = await uploadProof(input.proofFile, order.id);
     if (proofUrl) {
       await supabase.from("orders").update({ proof_image_url: proofUrl }).eq("id", order.id);
     }
   }
+
+  const firstProductImage =
+    cart.length > 0 ? imageMap.get(cart[0]?.productId ?? -1) : null;
+  await notifyTelegramNewOrder({
+    orderNumber: order.order_number,
+    customerName: order.customer_name,
+    whatsappPhone: order.whatsapp_phone,
+    email: order.email,
+    paymentMethod: order.payment_method,
+    totalDt: order.total_dt,
+    items: itemsToInsert.map((item) => ({
+      product_name: item.product_name,
+      quantity: item.quantity,
+      unit_price_dt: item.unit_price_dt,
+    })),
+    productImageUrl: firstProductImage,
+    proofImageUrl: proofUrl,
+  });
 
   await clearCart();
   revalidatePath("/cart");
@@ -129,7 +150,7 @@ export async function uploadProofForOrderAction(input: {
   const supabase = getSupabaseAdmin();
   const { data: order } = await supabase
     .from("orders")
-    .select("id, public_token")
+    .select("id, public_token, order_number, customer_name, whatsapp_phone, email")
     .eq("id", input.orderId)
     .single();
 
@@ -143,6 +164,14 @@ export async function uploadProofForOrderAction(input: {
     .update({ proof_image_url: proofUrl })
     .eq("id", input.orderId);
   if (error) return { ok: false, error: error.message };
+
+  await notifyTelegramProofUploaded({
+    orderNumber: order.order_number,
+    customerName: order.customer_name,
+    whatsappPhone: order.whatsapp_phone,
+    email: order.email,
+    proofImageUrl: proofUrl,
+  });
 
   revalidatePath(`/orders/${input.orderId}`);
   revalidatePath("/admin/orders");

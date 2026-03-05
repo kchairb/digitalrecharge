@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import { OrderStatusForm } from "@/components/admin/order-status-form";
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +8,7 @@ import { ORDER_STATUS_LABELS, ORDER_STATUS_STYLES } from "@/lib/constants";
 import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/i18n-server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { formatDt } from "@/lib/utils";
+import { formatDt, shouldUseUnoptimizedImage } from "@/lib/utils";
 import type { Order } from "@/types";
 
 export default async function AdminOrdersPage() {
@@ -63,9 +64,23 @@ export default async function AdminOrdersPage() {
               ))}
             </div>
             {order.proof_image_url ? (
-              <Link href={order.proof_image_url} target="_blank" className="mt-2 inline-block text-sm text-sky-300">
-                {copy.viewUploadedProof}
-              </Link>
+              <div className="mt-2 space-y-2">
+                <Link href={order.proof_image_url} target="_blank" className="inline-block text-sm text-sky-300">
+                  {copy.viewUploadedProof}
+                </Link>
+                <Link href={order.proof_image_url} target="_blank" className="block">
+                  <div className="relative h-28 w-28 overflow-hidden rounded-lg border border-slate-700">
+                    <Image
+                      src={order.proof_image_url}
+                      alt="Payment proof"
+                      fill
+                      sizes="112px"
+                      unoptimized={shouldUseUnoptimizedImage(order.proof_image_url)}
+                      className="object-cover"
+                    />
+                  </div>
+                </Link>
+              </div>
             ) : (
               <p className="mt-2 text-sm text-slate-500">{copy.noProofImageUploaded}</p>
             )}
