@@ -165,13 +165,15 @@ export async function uploadProofForOrderAction(input: {
     .eq("id", input.orderId);
   if (error) return { ok: false, error: error.message };
 
-  await notifyTelegramProofUploaded({
-    orderNumber: order.order_number,
-    customerName: order.customer_name,
-    whatsappPhone: order.whatsapp_phone,
-    email: order.email,
-    proofImageUrl: proofUrl,
-  });
+  if (proofUrl) {
+    await notifyTelegramProofUploaded({
+      orderNumber: order.order_number,
+      customerName: order.customer_name,
+      whatsappPhone: order.whatsapp_phone,
+      email: order.email,
+      proofImageUrl: proofUrl,
+    });
+  }
 
   revalidatePath(`/orders/${input.orderId}`);
   revalidatePath("/admin/orders");
