@@ -68,6 +68,7 @@ export type CartItem = {
   unitPriceDt?: number;
   provider?: string;
   amountUsd?: number;
+  planPeriod?: "1_month" | "1_year";
   customRequest?: string;
 };
 

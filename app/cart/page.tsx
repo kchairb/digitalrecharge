@@ -39,6 +39,7 @@ export default async function CartPage() {
         label: buildConfiguredLabel(product.name, {
           provider: item.provider,
           amountUsd: item.amountUsd,
+          planPeriod: item.planPeriod,
           customRequest: item.customRequest,
         }),
         subtotal: (item.unitPriceDt ?? product.price_dt) * item.quantity,

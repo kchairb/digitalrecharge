@@ -13,7 +13,7 @@ import { Card } from "@/components/ui/card";
 import { getProductBySlug } from "@/lib/data";
 import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/i18n-server";
-import { getCustomProductKind } from "@/lib/product-customization";
+import { getCustomProductKind, isMonthlyPricedProduct } from "@/lib/product-customization";
 import { formatDt, shouldUseUnoptimizedImage } from "@/lib/utils";
 
 type Props = {
@@ -50,6 +50,7 @@ export default async function ProductPage({ params }: Props) {
   if (!product) notFound();
   const isInstant = product.delivery_time.toLowerCase().includes("instant");
   const customKind = getCustomProductKind(product);
+  const isMonthly = isMonthlyPricedProduct(product);
 
   return (
     <div id="top" className="space-y-6 pb-24 sm:pb-0">
@@ -84,6 +85,7 @@ export default async function ProductPage({ params }: Props) {
           <h1 className="mt-2 text-3xl font-bold text-white">{product.name}</h1>
           <p className="mt-2 text-slate-300">{product.short_description}</p>
           <p className="mt-4 text-4xl font-extrabold text-sky-200">{formatDt(product.price_dt)}</p>
+          {isMonthly ? <p className="mt-1 text-xs text-slate-400">{copy.monthlyPriceHint}</p> : null}
           <div className="mt-3 flex flex-wrap items-center gap-2">
             {isInstant ? (
               <Badge className="border-amber-300/40 bg-amber-500/10 text-amber-200">

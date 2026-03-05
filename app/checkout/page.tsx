@@ -58,6 +58,7 @@ export default async function CheckoutPage() {
             const label = buildConfiguredLabel(product.name, {
               provider: item.provider,
               amountUsd: item.amountUsd,
+              planPeriod: item.planPeriod,
               customRequest: item.customRequest,
             });
             const unitPriceDt = item.unitPriceDt ?? product.price_dt;

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Lang, t } from "@/lib/i18n";
-import { getCustomProductKind } from "@/lib/product-customization";
+import { getCustomProductKind, isMonthlyPricedProduct } from "@/lib/product-customization";
 import { formatDt, shouldUseUnoptimizedImage, whatsappUrl } from "@/lib/utils";
 import { Product } from "@/types";
 
@@ -15,6 +15,7 @@ export function ProductCard({ product, lang }: { product: Product; lang: Lang })
   const copy = t(lang);
   const isInstant = product.delivery_time.toLowerCase().includes("instant");
   const isCustomizable = Boolean(getCustomProductKind(product));
+  const isMonthly = isMonthlyPricedProduct(product);
 
   return (
     <Card className="group flex h-full flex-col justify-between overflow-hidden p-0 transition-all duration-300 hover:-translate-y-1 hover:border-sky-400/30 hover:shadow-[0_0_28px_rgba(56,189,248,0.18)]">
@@ -53,7 +54,10 @@ export function ProductCard({ product, lang }: { product: Product; lang: Lang })
         <h3 className="mt-2 line-clamp-2 text-lg font-semibold text-white">{product.name}</h3>
         <p className="mt-2 text-sm text-slate-300">{product.short_description}</p>
         <div className="mt-4 flex items-center justify-between">
-          <p className="text-2xl font-bold text-sky-200">{formatDt(product.price_dt)}</p>
+          <div>
+            <p className="text-2xl font-bold text-sky-200">{formatDt(product.price_dt)}</p>
+            {isMonthly ? <p className="text-[11px] text-slate-400">{copy.monthlyPriceHint}</p> : null}
+          </div>
           <Badge>{product.delivery_time}</Badge>
         </div>
       </div>

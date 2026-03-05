@@ -25,6 +25,7 @@ export async function getCart(): Promise<CartItem[]> {
             : makeLineId(item.productId, {
                 provider: item.provider,
                 amountUsd: item.amountUsd,
+                planPeriod: item.planPeriod,
                 customRequest: item.customRequest,
               }),
       }));

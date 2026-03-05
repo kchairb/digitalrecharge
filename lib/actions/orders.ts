@@ -88,6 +88,7 @@ export async function placeOrderAction(input: {
     product_name: buildConfiguredLabel(nameMap.get(item.productId) ?? "Product", {
       provider: item.provider,
       amountUsd: item.amountUsd,
+      planPeriod: item.planPeriod,
       customRequest: item.customRequest,
     }),
     unit_price_dt: item.unitPriceDt ?? amountMap.get(item.productId) ?? 0,

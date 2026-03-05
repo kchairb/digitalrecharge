@@ -1,6 +1,6 @@
 import type { Product } from "@/types";
 
-export type CustomProductKind = "gift_card" | "vcc";
+export type CustomProductKind = "gift_card" | "vcc" | "perplexity_pro";
 
 export const GIFT_CARD_PROVIDERS = ["Steam", "Apple", "Google Play", "PlayStation", "Riot Games"] as const;
 export const GIFT_CARD_AMOUNTS = [10, 20, 30, 50, 100] as const;
@@ -12,10 +12,12 @@ export const VCC_PRICING_BY_AMOUNT: Record<number, number> = {
   50: 205,
   100: 405,
 };
+export const PERPLEXITY_PERIODS = ["1_month", "1_year"] as const;
 
 export type CartCustomizationInput = {
   provider?: string;
   amountUsd?: number;
+  planPeriod?: "1_month" | "1_year";
   customRequest?: string;
 };
 
@@ -23,7 +25,13 @@ export function getCustomProductKind(product: Product): CustomProductKind | null
   const categorySlug = product.categories?.slug?.toLowerCase() ?? "";
   if (categorySlug === "gift-cards") return "gift_card";
   if (product.slug === "vcc-5") return "vcc";
+  if (product.slug === "perplexity-pro") return "perplexity_pro";
   return null;
+}
+
+export function isMonthlyPricedProduct(product: Product) {
+  const categorySlug = product.categories?.slug?.toLowerCase() ?? "";
+  return categorySlug !== "gift-cards" && categorySlug !== "virtual-cards";
 }
 
 export function inferBaseAmountUsd(product: Product) {
@@ -39,7 +47,12 @@ export function computeConfiguredUnitPriceDt(
   product: Product,
   kind: CustomProductKind | null,
   amountUsd?: number,
+  planPeriod?: "1_month" | "1_year",
 ) {
+  if (kind === "perplexity_pro") {
+    if (planPeriod === "1_year") return product.price_dt * 10;
+    return product.price_dt;
+  }
   if (kind === "vcc") {
     if (!amountUsd || amountUsd <= 0) return product.price_dt;
     return VCC_PRICING_BY_AMOUNT[amountUsd] ?? product.price_dt;
@@ -56,6 +69,7 @@ export function sanitizeCustomization(kind: CustomProductKind | null, input?: Ca
   }
 
   const amount = Number(input?.amountUsd ?? 0);
+  const planPeriod = input?.planPeriod;
   const customRequest = input?.customRequest?.trim().slice(0, 200);
 
   if (kind === "gift_card") {
@@ -65,6 +79,15 @@ export function sanitizeCustomization(kind: CustomProductKind | null, input?: Ca
     return {
       provider: safeProvider,
       amountUsd: safeAmount,
+      customRequest,
+    };
+  }
+
+  if (kind === "perplexity_pro") {
+    const safePlanPeriod =
+      planPeriod && PERPLEXITY_PERIODS.includes(planPeriod) ? planPeriod : "1_month";
+    return {
+      planPeriod: safePlanPeriod,
       customRequest,
     };
   }
@@ -80,6 +103,7 @@ export function buildConfiguredLabel(productName: string, input: CartCustomizati
   const details: string[] = [];
   if (input.provider) details.push(input.provider);
   if (input.amountUsd) details.push(`$${input.amountUsd}`);
+  if (input.planPeriod) details.push(input.planPeriod === "1_year" ? "1 year" : "1 month");
   if (input.customRequest) details.push(`Request: ${input.customRequest}`);
   if (!details.length) return productName;
   return `${productName} (${details.join(" | ")})`;
@@ -88,6 +112,7 @@ export function buildConfiguredLabel(productName: string, input: CartCustomizati
 export function makeLineId(productId: number, input: CartCustomizationInput) {
   const provider = (input.provider ?? "").trim().toLowerCase();
   const amount = input.amountUsd ? String(input.amountUsd) : "";
+  const planPeriod = input.planPeriod ?? "";
   const request = (input.customRequest ?? "").trim().toLowerCase();
-  return `${productId}:${provider}:${amount}:${request}`;
+  return `${productId}:${provider}:${amount}:${planPeriod}:${request}`;
 }

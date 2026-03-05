@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Facebook, Instagram, Send } from "lucide-react";
 
-import { FACEBOOK_URL, INSTAGRAM_URL } from "@/lib/constants";
+import { DEVTRX_CONTACT_URL, FACEBOOK_URL, INSTAGRAM_URL } from "@/lib/constants";
 import { t, type Lang } from "@/lib/i18n";
 import { BrandMark } from "@/components/ui/brand-mark";
 import { whatsappUrl } from "@/lib/utils";
@@ -66,6 +66,16 @@ export function SiteFooter({ lang }: { lang: Lang }) {
               className="rounded-lg border border-slate-700 p-2 hover:border-sky-400/60"
             >
               <Instagram className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="mt-4">
+            <Link
+              href={DEVTRX_CONTACT_URL}
+              target={DEVTRX_CONTACT_URL === "#" ? undefined : "_blank"}
+              rel={DEVTRX_CONTACT_URL === "#" ? undefined : "noreferrer"}
+              className="inline-flex items-center rounded-xl border border-purple-400/35 bg-gradient-to-r from-purple-500/20 to-sky-400/15 px-3 py-2 text-xs font-semibold tracking-wide text-slate-100 shadow-[0_0_22px_rgba(139,92,246,.25)] transition hover:border-sky-300/45 hover:shadow-[0_0_28px_rgba(56,189,248,.28)]"
+            >
+              {copy.madeByDevtrx}
             </Link>
           </div>
         </div>

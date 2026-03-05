@@ -29,7 +29,12 @@ export async function addToCartAction(productId: number, quantity = 1, customiza
   const kind = getCustomProductKind(safeProduct);
   const safeCustomization = sanitizeCustomization(kind, customization);
   const lineId = makeLineId(productId, safeCustomization);
-  const unitPriceDt = computeConfiguredUnitPriceDt(safeProduct, kind, safeCustomization.amountUsd);
+  const unitPriceDt = computeConfiguredUnitPriceDt(
+    safeProduct,
+    kind,
+    safeCustomization.amountUsd,
+    safeCustomization.planPeriod,
+  );
   const existing = cart.find((item) => item.lineId === lineId);
 
   if (existing) {
@@ -42,6 +47,7 @@ export async function addToCartAction(productId: number, quantity = 1, customiza
       unitPriceDt,
       provider: safeCustomization.provider,
       amountUsd: safeCustomization.amountUsd,
+      planPeriod: safeCustomization.planPeriod,
       customRequest: safeCustomization.customRequest,
     });
   }
