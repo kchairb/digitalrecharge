@@ -44,6 +44,30 @@ const cachedFeaturedProducts = unstable_cache(
   { revalidate: 120, tags: ["featured-products", "products"] },
 );
 
+export async function getFeaturedPacks() {
+  return cachedFeaturedPacks();
+}
+
+const cachedFeaturedPacks = unstable_cache(
+  async () => {
+    const supabase = getSupabaseAdmin();
+    const { data, error } = await supabase
+      .from("products")
+      .select("*, categories(*)")
+      .eq("is_pack", true)
+      .eq("is_featured", true)
+      .order("created_at", { ascending: false })
+      .limit(8);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+    return (data ?? []) as Product[];
+  },
+  ["featured-packs"],
+  { revalidate: 120, tags: ["featured-packs", "featured-products", "products"] },
+);
+
 export async function getProducts(params?: {
   search?: string;
   category?: string;
@@ -173,3 +197,17 @@ const cachedPublishedFeedbacks = unstable_cache(
   ["published-feedbacks"],
   { revalidate: 120, tags: ["feedbacks"] },
 );
+
+export async function getPackIncludedProducts(packProductId: number) {
+  const supabase = getSupabaseAdmin();
+  const { data: links, error: linksError } = await supabase
+    .from("product_pack_items")
+    .select("included_product_id")
+    .eq("pack_product_id", packProductId);
+  if (linksError) {
+    throw new Error(linksError.message);
+  }
+  const includedIds = (links ?? []).map((row) => row.included_product_id);
+  if (!includedIds.length) return [];
+  return getProductsByIds(includedIds);
+}

@@ -8,6 +8,7 @@ import {
   FolderKanban,
   LayoutDashboard,
   MessageSquareText,
+  PackagePlus,
   Users,
 } from "lucide-react";
 import { Lang, t } from "@/lib/i18n";
@@ -17,6 +18,7 @@ export function AdminNav({ lang }: { lang: Lang }) {
   const links = [
     { href: "/admin", label: copy.overview, icon: LayoutDashboard },
     { href: "/admin/products", label: copy.products, icon: Boxes },
+    { href: "/admin/packs", label: copy.packs, icon: PackagePlus },
     { href: "/admin/categories", label: copy.categoriesLabel, icon: FolderKanban },
     { href: "/admin/orders", label: copy.ordersLabel, icon: ClipboardList },
     { href: "/admin/feedback", label: copy.feedback, icon: MessageSquareText },

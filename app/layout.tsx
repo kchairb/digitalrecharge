@@ -13,6 +13,7 @@ import { FloatingWhatsApp } from "@/components/ui/floating-whatsapp";
 import { LivePurchaseToast } from "@/components/ui/live-purchase-toast";
 import { SiteFooter } from "@/components/ui/site-footer";
 import { SiteHeader } from "@/components/ui/site-header";
+import { VisitTracker } from "@/components/analytics/visit-tracker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -87,6 +88,7 @@ export default async function RootLayout({
         <SiteFooter lang={lang} />
         <LivePurchaseToast lang={lang} />
         <FloatingWhatsApp />
+        <VisitTracker />
       </body>
     </html>
   );

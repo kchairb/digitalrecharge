@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
-import { categorySchema, feedbackSchema, orderStatusSchema, productSchema } from "@/lib/validation";
+import { categorySchema, feedbackSchema, orderStatusSchema, packSchema, productSchema } from "@/lib/validation";
 import { toSlug } from "@/lib/utils";
 
 const ALLOWED_IMAGE_MIME_TYPES = new Set([
@@ -259,4 +259,116 @@ export async function uploadProductImageAction(file: File) {
 
   const { data } = supabase.storage.from("product-images").getPublicUrl(path);
   return { ok: true, url: data.publicUrl };
+}
+
+export async function createPackAction(input: Record<string, unknown>) {
+  const parsed = packSchema.safeParse({
+    ...input,
+    slug: toSlug(String(input.slug || input.name || "")),
+  });
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid pack" };
+
+  const supabase = getSupabaseAdmin();
+  const payload = parsed.data;
+
+  const { data: created, error: createError } = await supabase
+    .from("products")
+    .insert({
+      name: payload.name,
+      slug: payload.slug,
+      category_id: payload.category_id,
+      price_dt: payload.price_dt,
+      short_description: payload.short_description,
+      long_description: payload.long_description,
+      delivery_time: payload.delivery_time,
+      requirements: payload.requirements,
+      refund_policy: payload.refund_policy,
+      is_featured: payload.is_featured,
+      image_url: payload.image_url || null,
+      is_pack: true,
+    })
+    .select("id")
+    .single();
+
+  if (createError || !created) return { ok: false, error: createError?.message ?? "Pack creation failed" };
+
+  const links = payload.included_product_ids.map((id) => ({
+    pack_product_id: created.id,
+    included_product_id: id,
+  }));
+  const { error: linkError } = await supabase.from("product_pack_items").insert(links);
+  if (linkError) return { ok: false, error: linkError.message };
+
+  revalidatePath("/admin/packs");
+  revalidatePath("/admin");
+  revalidatePath("/");
+  revalidatePath("/shop");
+  revalidateTag("products", "max");
+  revalidateTag("featured-products", "max");
+  return { ok: true };
+}
+
+export async function updatePackAction(id: number, input: Record<string, unknown>) {
+  const parsed = packSchema.safeParse({
+    ...input,
+    slug: toSlug(String(input.slug || input.name || "")),
+  });
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid pack" };
+
+  const supabase = getSupabaseAdmin();
+  const payload = parsed.data;
+
+  const { error: updateError } = await supabase
+    .from("products")
+    .update({
+      name: payload.name,
+      slug: payload.slug,
+      category_id: payload.category_id,
+      price_dt: payload.price_dt,
+      short_description: payload.short_description,
+      long_description: payload.long_description,
+      delivery_time: payload.delivery_time,
+      requirements: payload.requirements,
+      refund_policy: payload.refund_policy,
+      is_featured: payload.is_featured,
+      image_url: payload.image_url || null,
+      is_pack: true,
+    })
+    .eq("id", id);
+  if (updateError) return { ok: false, error: updateError.message };
+
+  const { error: deleteLinksError } = await supabase
+    .from("product_pack_items")
+    .delete()
+    .eq("pack_product_id", id);
+  if (deleteLinksError) return { ok: false, error: deleteLinksError.message };
+
+  const links = payload.included_product_ids.map((includedId) => ({
+    pack_product_id: id,
+    included_product_id: includedId,
+  }));
+  const { error: insertLinksError } = await supabase.from("product_pack_items").insert(links);
+  if (insertLinksError) return { ok: false, error: insertLinksError.message };
+
+  revalidatePath("/admin/packs");
+  revalidatePath("/admin");
+  revalidatePath("/");
+  revalidatePath("/shop");
+  revalidateTag("products", "max");
+  revalidateTag("featured-products", "max");
+  return { ok: true };
+}
+
+export async function deletePackAction(id: number) {
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.from("products").delete().eq("id", id).eq("is_pack", true);
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/admin/packs");
+  revalidatePath("/admin");
+  revalidatePath("/");
+  revalidatePath("/shop");
+  revalidateTag("products", "max");
+  revalidateTag("featured-products", "max");
+  return { ok: true };
 }

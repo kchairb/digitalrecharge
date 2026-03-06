@@ -15,13 +15,17 @@ export default async function AdminHomePage() {
     { count: categories },
     { count: orders },
     { count: feedbacks },
+    { count: totalVisits },
     { data: orderTotals },
+    { data: latestVisits },
   ] = await Promise.all([
     supabase.from("products").select("*", { count: "exact", head: true }),
     supabase.from("categories").select("*", { count: "exact", head: true }),
     supabase.from("orders").select("*", { count: "exact", head: true }),
     supabase.from("feedbacks").select("*", { count: "exact", head: true }),
+    supabase.from("site_visits").select("*", { count: "exact", head: true }),
     supabase.from("orders").select("total_dt,status"),
+    supabase.from("site_visits").select("visitor_id,created_at").order("created_at", { ascending: false }).limit(5000),
   ]);
 
   const totals = orderTotals ?? [];
@@ -33,6 +37,10 @@ export default async function AdminHomePage() {
     .reduce((sum, order) => sum + order.total_dt, 0);
   const grossRevenue = totals.reduce((sum, order) => sum + order.total_dt, 0);
   const paidCount = totals.filter((order) => order.status === "paid" || order.status === "delivered").length;
+  const visits = latestVisits ?? [];
+  const uniqueVisitors = new Set(visits.map((visit) => visit.visitor_id)).size;
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const visitsToday = visits.filter((visit) => String(visit.created_at).slice(0, 10) === todayKey).length;
 
   return (
     <div className="space-y-4">
@@ -92,6 +100,18 @@ export default async function AdminHomePage() {
         <Card>
           <p className="text-sm text-slate-400">{copy.feedbacks}</p>
           <p className="mt-2 text-2xl font-bold text-white">{feedbacks ?? 0}</p>
+        </Card>
+        <Card>
+          <p className="text-sm text-slate-400">{copy.totalVisits}</p>
+          <p className="mt-2 text-2xl font-bold text-white">{totalVisits ?? 0}</p>
+        </Card>
+        <Card>
+          <p className="text-sm text-slate-400">{copy.uniqueVisitors}</p>
+          <p className="mt-2 text-2xl font-bold text-white">{uniqueVisitors}</p>
+        </Card>
+        <Card>
+          <p className="text-sm text-slate-400">{copy.visitsToday}</p>
+          <p className="mt-2 text-2xl font-bold text-white">{visitsToday}</p>
         </Card>
       </div>
     </div>

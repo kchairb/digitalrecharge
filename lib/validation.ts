@@ -81,3 +81,18 @@ export const feedbackSchema = z.object({
   screenshot_url: z.string().url("Screenshot URL must be valid").optional().or(z.literal("")),
   is_published: z.boolean().default(true),
 });
+
+export const packSchema = z.object({
+  name: z.string().min(2, "Pack name is required"),
+  slug: z.string().min(2, "Slug is required"),
+  category_id: z.coerce.number().int().positive(),
+  price_dt: z.coerce.number().int().positive(),
+  short_description: z.string().min(10),
+  long_description: z.string().min(10),
+  delivery_time: z.string().min(2),
+  requirements: z.string().min(2),
+  refund_policy: z.string().min(2),
+  image_url: imageUrlFieldSchema.or(z.literal("")),
+  is_featured: z.boolean().default(false),
+  included_product_ids: z.array(z.coerce.number().int().positive()).min(1, "Select at least one product"),
+});

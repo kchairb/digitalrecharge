@@ -38,6 +38,9 @@ export function ProductCard({ product, lang }: { product: Product; lang: Lang })
       <div>
         <p className="text-xs text-slate-400">{product.categories?.name ?? copy.digitalProduct}</p>
         <div className="mt-2 flex flex-wrap gap-2">
+          {product.is_pack ? (
+            <Badge className="border-sky-400/40 bg-sky-500/10 text-sky-200">{copy.packBadge}</Badge>
+          ) : null}
           {isInstant ? (
             <Badge className="border-amber-300/40 bg-amber-400/10 text-amber-200">
               <Zap className="mr-1 h-3.5 w-3.5" />

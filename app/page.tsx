@@ -24,7 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FACEBOOK_URL, INSTAGRAM_URL } from "@/lib/constants";
-import { getCategories, getFeaturedProducts, getPublishedFeedbacks } from "@/lib/data";
+import { getCategories, getFeaturedPacks, getFeaturedProducts, getPublishedFeedbacks } from "@/lib/data";
 import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/i18n-server";
 import { shouldUseUnoptimizedImage, whatsappSupportMessage, whatsappUrl } from "@/lib/utils";
@@ -39,9 +39,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  const [categories, featured, feedbacks, lang] = await Promise.all([
+  const [categories, featured, featuredPacks, feedbacks, lang] = await Promise.all([
     getCategories(),
     getFeaturedProducts(),
+    getFeaturedPacks(),
     getPublishedFeedbacks(),
     getLang(),
   ]);
@@ -161,6 +162,18 @@ export default async function Home() {
           <FeaturedSlider products={featured} lang={lang} />
         </div>
       </section>
+
+      {featuredPacks.length > 0 ? (
+        <section>
+          <h2 className="section-title">{copy.featuredPacks}</h2>
+          <p className="mt-1 text-sm text-slate-400">{copy.featuredPacksHint}</p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {featuredPacks.map((product) => (
+              <ProductCard key={product.id} product={product} lang={lang} />
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section>
         <h2 className="section-title">{copy.topProducts}</h2>

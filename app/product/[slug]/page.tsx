@@ -10,7 +10,7 @@ import { ProductConfigPanel } from "@/components/product-config-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { getProductBySlug } from "@/lib/data";
+import { getPackIncludedProducts, getProductBySlug } from "@/lib/data";
 import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/i18n-server";
 import { getCustomProductKind, isMonthlyPricedProduct } from "@/lib/product-customization";
@@ -51,6 +51,7 @@ export default async function ProductPage({ params }: Props) {
   const isInstant = product.delivery_time.toLowerCase().includes("instant");
   const customKind = getCustomProductKind(product);
   const isMonthly = isMonthlyPricedProduct(product);
+  const includedProducts = product.is_pack ? await getPackIncludedProducts(product.id) : [];
 
   return (
     <div id="top" className="space-y-6 pb-24 sm:pb-0">
@@ -103,6 +104,17 @@ export default async function ProductPage({ params }: Props) {
           </div>
 
           <ProductConfigPanel product={product} lang={lang} />
+
+          {product.is_pack ? (
+            <div className="mt-4 rounded-xl border border-slate-700 bg-slate-900/40 p-3">
+              <p className="text-sm font-medium text-white">{copy.includedProducts}</p>
+              <ul className="mt-2 space-y-1 text-sm text-slate-300">
+                {includedProducts.map((item) => (
+                  <li key={item.id}>- {item.name}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
 
           <div className="mt-5 space-y-2 text-sm text-slate-300">
             <p className="inline-flex items-center gap-2">

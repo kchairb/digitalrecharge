@@ -18,6 +18,7 @@ export type Product = {
   requirements: string;
   refund_policy: string;
   is_featured: boolean;
+  is_pack?: boolean;
   image_url: string | null;
   created_at: string;
   updated_at: string;
@@ -82,4 +83,10 @@ export type Feedback = {
   is_published: boolean;
   created_at: string;
   updated_at: string;
+};
+
+export type ProductPackItem = {
+  pack_product_id: number;
+  included_product_id: number;
+  included_product?: Product | null;
 };
