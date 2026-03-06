@@ -94,6 +94,7 @@ export async function createProductAction(input: Record<string, unknown>) {
   revalidatePath("/shop");
   revalidateTag("products", "max");
   revalidateTag("featured-products", "max");
+  revalidateTag("featured-packs", "max");
   return { ok: true };
 }
 
@@ -118,6 +119,7 @@ export async function updateProductAction(id: number, input: Record<string, unkn
   revalidatePath("/shop");
   revalidateTag("products", "max");
   revalidateTag("featured-products", "max");
+  revalidateTag("featured-packs", "max");
   return { ok: true };
 }
 
@@ -130,6 +132,7 @@ export async function deleteProductAction(id: number) {
   revalidatePath("/shop");
   revalidateTag("products", "max");
   revalidateTag("featured-products", "max");
+  revalidateTag("featured-packs", "max");
   return { ok: true };
 }
 

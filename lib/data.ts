@@ -32,6 +32,7 @@ const cachedFeaturedProducts = unstable_cache(
     .from("products")
     .select("*, categories(*)")
     .eq("is_featured", true)
+    .neq("is_pack", true)
     .order("created_at", { ascending: false })
     .limit(8);
 
