@@ -11,6 +11,7 @@ import { getLang } from "@/lib/i18n-server";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { FloatingWhatsApp } from "@/components/ui/floating-whatsapp";
 import { LivePurchaseToast } from "@/components/ui/live-purchase-toast";
+import { SeoJsonLd } from "@/components/seo-json-ld";
 import { SiteFooter } from "@/components/ui/site-footer";
 import { SiteHeader } from "@/components/ui/site-header";
 import { VisitTracker } from "@/components/analytics/visit-tracker";
@@ -25,19 +26,47 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://digitalrecharge.tn";
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(baseUrl),
   title: {
     default: `${SITE_NAME} | Digital Marketplace`,
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
+  keywords: [
+    "digital products Tunisia",
+    "AI tools",
+    "streaming subscriptions",
+    "Canva Pro",
+    "ChatGPT",
+    "gift cards",
+    "virtual cards",
+    "Flouci",
+    "D17",
+    "digitalrecharge",
+  ],
   openGraph: {
     title: `${SITE_NAME} | Digital Marketplace`,
     description: SITE_DESCRIPTION,
     type: "website",
     url: "/",
+    siteName: SITE_NAME,
+    locale: "en_US",
+    alternateLocale: "ar_TN",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} | Digital Marketplace`,
+    description: SITE_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+  alternates: { canonical: baseUrl },
 };
 
 export const dynamic = "force-dynamic";
@@ -83,6 +112,7 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <SeoJsonLd />
         <SiteHeader cartCount={count} userEmail={userEmail} lang={lang} isAdmin={isAdmin} />
         <main className="reveal-stagger mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">{children}</main>
         <SiteFooter lang={lang} />

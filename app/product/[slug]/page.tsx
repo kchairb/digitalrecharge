@@ -16,6 +16,14 @@ import { getLang } from "@/lib/i18n-server";
 import { getCustomProductKind, isMonthlyPricedProduct } from "@/lib/product-customization";
 import { formatDt, shouldUseUnoptimizedImage } from "@/lib/utils";
 
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://digitalrecharge.tn";
+
+function absoluteImageUrl(imageUrl: string | null): string | undefined {
+  if (!imageUrl) return undefined;
+  if (imageUrl.startsWith("http")) return imageUrl;
+  return `${baseUrl}${imageUrl.startsWith("/") ? "" : "/"}${imageUrl}`;
+}
+
 type Props = {
   params: Promise<{ slug: string }>;
 };
@@ -30,6 +38,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
+  const ogImage = absoluteImageUrl(product.image_url);
+
   return {
     title: product.name,
     description: product.short_description,
@@ -37,8 +47,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: product.name,
       description: product.short_description,
       url: `/product/${product.slug}`,
-      type: "article",
+      type: "website",
+      ...(ogImage && { images: [{ url: ogImage, alt: product.name }] }),
     },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name,
+      description: product.short_description,
+    },
+    alternates: { canonical: `${baseUrl}/product/${product.slug}` },
   };
 }
 
@@ -52,9 +69,28 @@ export default async function ProductPage({ params }: Props) {
   const customKind = getCustomProductKind(product);
   const isMonthly = isMonthlyPricedProduct(product);
   const includedProducts = product.is_pack ? await getPackIncludedProducts(product.id) : [];
+  const productImageUrl = absoluteImageUrl(product.image_url);
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.short_description,
+    ...(productImageUrl && { image: productImageUrl }),
+    offers: {
+      "@type": "Offer",
+      price: product.price_dt,
+      priceCurrency: "TND",
+      availability: "https://schema.org/InStock",
+      url: `${baseUrl}/product/${product.slug}`,
+    },
+  };
 
   return (
     <div id="top" className="space-y-6 pb-24 sm:pb-0">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
         <Card className="overflow-hidden p-0">
           <div className="relative h-72 sm:h-[420px]">
