@@ -212,3 +212,101 @@ export async function getPackIncludedProducts(packProductId: number) {
   if (!includedIds.length) return [];
   return getProductsByIds(includedIds);
 }
+
+export type PackIncludedItem = { name: string; image_url: string | null };
+
+/** Returns featured packs with included product names and images for display. */
+export async function getFeaturedPacksWithIncludedNames(): Promise<
+  (Product & { includedProductNames: string[]; includedProductImages: PackIncludedItem[] })[]
+> {
+  const packs = await getFeaturedPacks();
+  if (!packs.length) return [];
+
+  const supabase = getSupabaseAdmin();
+  const packIds = packs.map((p) => p.id);
+  const { data: links, error: linksError } = await supabase
+    .from("product_pack_items")
+    .select("pack_product_id, included_product_id")
+    .in("pack_product_id", packIds);
+  if (linksError) throw new Error(linksError.message);
+
+  const includedIds = [...new Set((links ?? []).map((row) => row.included_product_id))];
+  if (!includedIds.length) return packs.map((p) => ({ ...p, includedProductNames: [], includedProductImages: [] }));
+
+  const { data: products, error: productsError } = await supabase
+    .from("products")
+    .select("id, name, image_url")
+    .in("id", includedIds);
+  if (productsError) throw new Error(productsError.message);
+  const productById = new Map(
+    (products ?? []).map((p: { id: number; name: string; image_url: string | null }) => [p.id, { name: p.name, image_url: p.image_url }])
+  );
+
+  const itemsByPackId = new Map<number, { name: string; image_url: string | null }[]>();
+  for (const row of links ?? []) {
+    const item = productById.get(row.included_product_id);
+    if (!item) continue;
+    const list = itemsByPackId.get(row.pack_product_id) ?? [];
+    list.push(item);
+    itemsByPackId.set(row.pack_product_id, list);
+  }
+
+  // Ensure every pack has included images (fallback when product_pack_items is empty or cache is stale)
+  return Promise.all(
+    packs.map(async (p) => {
+      let items = itemsByPackId.get(p.id) ?? [];
+      if (items.length === 0) {
+        const included = await getPackIncludedProducts(p.id);
+        items = included.map((prod) => ({ name: prod.name, image_url: prod.image_url }));
+      }
+      return {
+        ...p,
+        includedProductNames: items.map((i) => i.name),
+        includedProductImages: items,
+      };
+    })
+  );
+}
+
+/** For a list of products that may include packs, returns a Map of pack product id -> included product names. */
+export async function getPackIncludedNamesMap(packProductIds: number[]): Promise<Map<number, string[]>> {
+  const details = await getPackIncludedDetailsMap(packProductIds);
+  const out = new Map<number, string[]>();
+  details.forEach((items, packId) => out.set(packId, items.map((i) => i.name)));
+  return out;
+}
+
+/** For a list of pack product ids, returns a Map of pack id -> included items (name + image_url) for pack picture grids. */
+export async function getPackIncludedDetailsMap(
+  packProductIds: number[]
+): Promise<Map<number, PackIncludedItem[]>> {
+  if (!packProductIds.length) return new Map();
+  const supabase = getSupabaseAdmin();
+  const { data: links, error: linksError } = await supabase
+    .from("product_pack_items")
+    .select("pack_product_id, included_product_id")
+    .in("pack_product_id", packProductIds);
+  if (linksError) throw new Error(linksError.message);
+  const includedIds = [...new Set((links ?? []).map((row) => row.included_product_id))];
+  if (!includedIds.length) return new Map(packProductIds.map((id) => [id, []]));
+  const { data: products, error: productsError } = await supabase
+    .from("products")
+    .select("id, name, image_url")
+    .in("id", includedIds);
+  if (productsError) throw new Error(productsError.message);
+  const itemById = new Map(
+    (products ?? []).map((p: { id: number; name: string; image_url: string | null }) => [
+      p.id,
+      { name: p.name, image_url: p.image_url },
+    ])
+  );
+  const itemsByPackId = new Map<number, PackIncludedItem[]>();
+  for (const row of links ?? []) {
+    const item = itemById.get(row.included_product_id);
+    if (!item) continue;
+    const list = itemsByPackId.get(row.pack_product_id) ?? [];
+    list.push(item);
+    itemsByPackId.set(row.pack_product_id, list);
+  }
+  return itemsByPackId;
+}

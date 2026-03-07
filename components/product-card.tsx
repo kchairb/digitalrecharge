@@ -9,21 +9,67 @@ import { Card } from "@/components/ui/card";
 import { Lang, t } from "@/lib/i18n";
 import { getCustomProductKind, isMonthlyPricedProduct } from "@/lib/product-customization";
 import { formatDt, shouldUseUnoptimizedImage, whatsappProductOrderMessage, whatsappUrl } from "@/lib/utils";
+import type { PackIncludedItem } from "@/lib/data";
 import { Product } from "@/types";
 
-export function ProductCard({ product, lang }: { product: Product; lang: Lang }) {
+const PACK_PRODUCT_NAMES_SEP = " · ";
+
+export function ProductCard({
+  product,
+  lang,
+  includedProductNames,
+  includedProductImages,
+}: {
+  product: Product;
+  lang: Lang;
+  includedProductNames?: string[];
+  includedProductImages?: PackIncludedItem[];
+}) {
   const copy = t(lang);
   const isInstant = product.delivery_time.toLowerCase().includes("instant");
   const isCustomizable = Boolean(getCustomProductKind(product));
   const isMonthly = isMonthlyPricedProduct(product);
+  const packNames =
+    product.is_pack && includedProductNames?.length
+      ? includedProductNames.join(PACK_PRODUCT_NAMES_SEP)
+      : null;
+  const imageAlt =
+    product.is_pack && packNames ? `${product.name}: ${packNames}` : product.name;
+  const showPackGrid =
+    product.is_pack && includedProductImages && includedProductImages.length > 0;
+  const packImages = showPackGrid ? includedProductImages : null;
 
   return (
     <Card className="group flex h-full flex-col justify-between overflow-hidden p-0 transition-all duration-300 hover:-translate-y-1 hover:border-sky-400/30 hover:shadow-[0_0_28px_rgba(56,189,248,0.18)]">
       <div className="relative h-36 overflow-hidden">
-        {product.image_url ? (
+        {packImages && packImages.length > 0 ? (
+          <div
+            className="grid h-full w-full grid-rows-1 gap-0.5 p-0.5"
+            style={{
+              gridTemplateColumns: `repeat(${Math.min(packImages.length, 3)}, 1fr)`,
+            }}
+          >
+            {packImages.slice(0, 6).map((item, idx) => (
+              <div key={`${item.name}-${idx}`} className="relative min-h-0 overflow-hidden bg-slate-800/80">
+                {item.image_url ? (
+                  <Image
+                    src={item.image_url}
+                    alt={item.name}
+                    fill
+                    sizes="(max-width: 768px) 33vw, 80px"
+                    unoptimized={shouldUseUnoptimizedImage(item.image_url)}
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-gradient-to-br from-purple-500/35 to-sky-400/25" />
+                )}
+              </div>
+            ))}
+          </div>
+        ) : product.image_url ? (
           <Image
             src={product.image_url}
-            alt={product.name}
+            alt={imageAlt}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw"
             unoptimized={shouldUseUnoptimizedImage(product.image_url)}
@@ -55,6 +101,9 @@ export function ProductCard({ product, lang }: { product: Product; lang: Lang })
           ) : null}
         </div>
         <h3 className="mt-2 line-clamp-2 text-lg font-semibold text-white">{product.name}</h3>
+        {packNames ? (
+          <p className="mt-1 line-clamp-2 text-sm font-medium text-sky-200/90">{packNames}</p>
+        ) : null}
         <p className="mt-2 text-sm text-slate-300">{product.short_description}</p>
         <div className="mt-4 flex items-center justify-between">
           <div>

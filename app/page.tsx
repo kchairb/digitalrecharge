@@ -24,7 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FACEBOOK_URL, INSTAGRAM_URL } from "@/lib/constants";
-import { getCategories, getFeaturedPacks, getFeaturedProducts, getPublishedFeedbacks } from "@/lib/data";
+import { getCategories, getFeaturedPacksWithIncludedNames, getFeaturedProducts, getPublishedFeedbacks } from "@/lib/data";
 import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/i18n-server";
 import { shouldUseUnoptimizedImage, whatsappSupportMessage, whatsappUrl } from "@/lib/utils";
@@ -42,7 +42,7 @@ export default async function Home() {
   const [categories, featured, featuredPacks, feedbacks, lang] = await Promise.all([
     getCategories(),
     getFeaturedProducts(),
-    getFeaturedPacks(),
+    getFeaturedPacksWithIncludedNames(),
     getPublishedFeedbacks(),
     getLang(),
   ]);
@@ -168,8 +168,14 @@ export default async function Home() {
           <h2 className="section-title">{copy.featuredPacks}</h2>
           <p className="mt-1 text-sm text-slate-400">{copy.featuredPacksHint}</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {featuredPacks.map((product) => (
-              <ProductCard key={product.id} product={product} lang={lang} />
+            {featuredPacks.map((pack) => (
+              <ProductCard
+                key={pack.id}
+                product={pack}
+                lang={lang}
+                includedProductNames={pack.includedProductNames}
+                includedProductImages={pack.includedProductImages}
+              />
             ))}
           </div>
         </section>

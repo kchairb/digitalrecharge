@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { ProductCard } from "@/components/product-card";
 import { Card } from "@/components/ui/card";
-import { getCategories, getProducts } from "@/lib/data";
+import { getCategories, getPackIncludedDetailsMap, getProducts } from "@/lib/data";
 import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/i18n-server";
 
@@ -32,6 +32,10 @@ export default async function ShopPage({ searchParams }: Props) {
       sort: params.sort,
     }),
   ]);
+
+  const packIds = products.filter((p) => p.is_pack).map((p) => p.id);
+  const packDetailsMap =
+    packIds.length > 0 ? await getPackIncludedDetailsMap(packIds) : new Map<number, { name: string; image_url: string | null }[]>();
 
   return (
     <div className="space-y-6 pb-8">
@@ -64,7 +68,13 @@ export default async function ShopPage({ searchParams }: Props) {
       {products.length ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {products.map((product) => (
-            <ProductCard key={product.id} product={product} lang={lang} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              lang={lang}
+              includedProductNames={product.is_pack ? packDetailsMap.get(product.id)?.map((i) => i.name) : undefined}
+              includedProductImages={product.is_pack ? packDetailsMap.get(product.id) : undefined}
+            />
           ))}
         </div>
       ) : (

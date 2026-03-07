@@ -58,7 +58,32 @@ export default async function ProductPage({ params }: Props) {
       <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
         <Card className="overflow-hidden p-0">
           <div className="relative h-72 sm:h-[420px]">
-            {product.image_url ? (
+            {product.is_pack && includedProducts.length > 0 ? (
+              <div
+                className="grid h-full w-full gap-1 p-1"
+                style={{
+                  gridTemplateColumns: `repeat(${Math.min(includedProducts.length, 3)}, 1fr)`,
+                }}
+              >
+                {includedProducts.slice(0, 6).map((p) => (
+                  <div key={p.id} className="relative overflow-hidden bg-slate-800/80">
+                    {p.image_url ? (
+                      <Image
+                        src={p.image_url}
+                        alt={p.name}
+                        fill
+                        priority
+                        sizes="(max-width: 1024px) 50vw, 25vw"
+                        unoptimized={shouldUseUnoptimizedImage(p.image_url)}
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-gradient-to-br from-purple-500/35 to-sky-400/25" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : product.image_url ? (
               <Image
                 src={product.image_url}
                 alt={product.name}
@@ -84,6 +109,11 @@ export default async function ProductPage({ params }: Props) {
         <Card className="h-fit">
           <p className="text-xs uppercase tracking-wider text-slate-400">{product.categories?.name}</p>
           <h1 className="mt-2 text-3xl font-bold text-white">{product.name}</h1>
+          {product.is_pack && includedProducts.length > 0 ? (
+            <p className="mt-2 text-base font-medium text-sky-200/95">
+              {includedProducts.map((p) => p.name).join(" · ")}
+            </p>
+          ) : null}
           <p className="mt-2 text-slate-300">{product.short_description}</p>
           <p className="mt-4 text-4xl font-extrabold text-sky-200">{formatDt(product.price_dt)}</p>
           {isMonthly ? <p className="mt-1 text-xs text-slate-400">{copy.monthlyPriceHint}</p> : null}
