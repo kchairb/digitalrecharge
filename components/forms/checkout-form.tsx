@@ -6,7 +6,7 @@ import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import Link from "next/link";
-import { Building2, MessageCircleMore } from "lucide-react";
+import { Building2, Eye, EyeOff, MessageCircleMore } from "lucide-react";
 
 import { placeOrderAction } from "@/lib/actions/orders";
 import { PAYMENT_METHOD_LABELS, PAYMENT_RECEIVERS } from "@/lib/constants";
@@ -45,6 +45,7 @@ export function CheckoutForm({ total, lang }: { total: number; lang: Lang }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [serverError, setServerError] = useState("");
+  const [receiverRevealed, setReceiverRevealed] = useState(false);
   const { register, handleSubmit, formState, watch } = useForm<Values>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: { payment_method: "flouci" },
@@ -125,13 +126,37 @@ export function CheckoutForm({ total, lang }: { total: number; lang: Lang }) {
                 <span className="font-semibold text-emerald-300">{total} DT</span>
               </p>
               <p className="text-xs text-amber-200">{copy.includeTransactionFees}</p>
-              <p>
+              <p className="flex flex-wrap items-center gap-2">
                 <span className="text-slate-400">{copy.receiverNumber}:</span>{" "}
-                <span className="font-semibold text-sky-300">
-                  {selectedMethod === "flouci"
-                    ? PAYMENT_RECEIVERS.flouci
-                    : PAYMENT_RECEIVERS.d17}
-                </span>
+                {receiverRevealed ? (
+                  <>
+                    <span className="font-semibold text-sky-300">
+                      {selectedMethod === "flouci"
+                        ? PAYMENT_RECEIVERS.flouci
+                        : PAYMENT_RECEIVERS.d17}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setReceiverRevealed(false)}
+                      className="inline-flex items-center gap-1 rounded border border-slate-600 px-2 py-0.5 text-xs text-slate-400 hover:border-slate-500 hover:text-slate-300"
+                    >
+                      <EyeOff className="h-3.5 w-3.5" />
+                      {copy.hideNumber}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span className="font-mono text-slate-500">••••••••••••</span>
+                    <button
+                      type="button"
+                      onClick={() => setReceiverRevealed(true)}
+                      className="inline-flex items-center gap-1 rounded border border-sky-600/60 px-2 py-0.5 text-xs text-sky-300 hover:border-sky-500 hover:bg-sky-500/10"
+                    >
+                      <Eye className="h-3.5 w-3.5" />
+                      {copy.revealNumber}
+                    </button>
+                  </>
+                )}
               </p>
               <p className="text-xs text-slate-500">{copy.afterPaymentProof}</p>
               {((selectedMethod === "flouci" && isFlouciUnset) ||
@@ -144,9 +169,33 @@ export function CheckoutForm({ total, lang }: { total: number; lang: Lang }) {
           ) : (
             <div className="mt-2 space-y-2 text-sm text-slate-300">
               <p>{copy.bankTransferInstructions}</p>
-              <p>
+              <p className="flex flex-wrap items-center gap-2">
                 <span className="text-slate-400">{copy.bankTransferDetails}:</span>{" "}
-                <span className="font-semibold text-sky-300">{PAYMENT_RECEIVERS.bankTransferInfo}</span>
+                {receiverRevealed ? (
+                  <>
+                    <span className="font-semibold text-sky-300">{PAYMENT_RECEIVERS.bankTransferInfo}</span>
+                    <button
+                      type="button"
+                      onClick={() => setReceiverRevealed(false)}
+                      className="inline-flex items-center gap-1 rounded border border-slate-600 px-2 py-0.5 text-xs text-slate-400 hover:border-slate-500 hover:text-slate-300"
+                    >
+                      <EyeOff className="h-3.5 w-3.5" />
+                      {copy.hideNumber}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span className="font-mono text-slate-500">••••••••••••</span>
+                    <button
+                      type="button"
+                      onClick={() => setReceiverRevealed(true)}
+                      className="inline-flex items-center gap-1 rounded border border-sky-600/60 px-2 py-0.5 text-xs text-sky-300 hover:border-sky-500 hover:bg-sky-500/10"
+                    >
+                      <Eye className="h-3.5 w-3.5" />
+                      {copy.revealNumber}
+                    </button>
+                  </>
+                )}
               </p>
             </div>
           )}
