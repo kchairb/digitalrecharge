@@ -26,8 +26,8 @@ export async function addToCartAction(productId: number, quantity = 1, customiza
     return { ok: false, error: "Product not found." };
   }
 
-  const kind = getCustomProductKind(safeProduct);
-  const safeCustomization = sanitizeCustomization(kind, customization);
+  const kind = safeProduct ? getCustomProductKind(safeProduct) : null;
+  const safeCustomization = sanitizeCustomization(safeProduct, kind, customization);
   const lineId = makeLineId(productId, safeCustomization);
   const unitPriceDt = computeConfiguredUnitPriceDt(
     safeProduct,

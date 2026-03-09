@@ -14,6 +14,7 @@ import {
   buildConfiguredLabel,
   computeConfiguredUnitPriceDt,
   getCustomProductKind,
+  getGamingTopupConfig,
 } from "@/lib/product-customization";
 import { type Lang, t } from "@/lib/i18n";
 import { formatDt, whatsappProductOrderMessage, whatsappUrl } from "@/lib/utils";
@@ -22,8 +23,13 @@ import type { Product } from "@/types";
 export function ProductConfigPanel({ product, lang }: { product: Product; lang: Lang }) {
   const copy = t(lang);
   const kind = getCustomProductKind(product);
+  const gamingConfig = getGamingTopupConfig(product);
   const [provider, setProvider] = useState<string>(GIFT_CARD_PROVIDERS[0]);
-  const [amountUsd, setAmountUsd] = useState<number>(kind === "vcc" ? VCC_AMOUNTS[0] : GIFT_CARD_AMOUNTS[0]);
+  const [amountUsd, setAmountUsd] = useState<number>(() => {
+    if (kind === "vcc") return VCC_AMOUNTS[0];
+    if (kind === "gaming_topup" && gamingConfig?.options.length) return gamingConfig.options[0].amount;
+    return GIFT_CARD_AMOUNTS[0];
+  });
   const [planPeriod, setPlanPeriod] = useState<"1_month" | "1_year">("1_month");
   const [customRequest, setCustomRequest] = useState("");
 
@@ -70,9 +76,11 @@ export function ProductConfigPanel({ product, lang }: { product: Product; lang: 
             ? copy.giftCardOptions
             : kind === "vcc"
               ? copy.virtualCardOptions
-              : copy.perplexityOptions}
+              : kind === "perplexity_pro"
+                ? copy.perplexityOptions
+                : copy.gamingTopupOptions}
         </p>
-        {kind === "vcc" || kind === "perplexity_pro" ? (
+        {kind === "vcc" || kind === "perplexity_pro" || kind === "gaming_topup" ? (
           <p className="mt-2 text-sm text-sky-200">
             {copy.selectedPrice}: <span className="font-semibold">{formatDt(previewPrice)}</span>
           </p>
@@ -108,13 +116,27 @@ export function ProductConfigPanel({ product, lang }: { product: Product; lang: 
             </label>
           ) : (
             <label className="block">
-              <span className="mb-1 block text-xs text-slate-300">{copy.amountUsd}</span>
+              <span className="mb-1 block text-xs text-slate-300">
+                {kind === "gaming_topup" ? copy.topupAmount : copy.amountUsd}
+              </span>
               <select value={amountUsd} onChange={(e) => setAmountUsd(Number(e.target.value))}>
-                {(kind === "gift_card" ? GIFT_CARD_AMOUNTS : VCC_AMOUNTS).map((amount) => (
-                  <option key={amount} value={amount}>
-                    {kind === "vcc" ? `$${amount} - ${formatDt(VCC_PRICING_BY_AMOUNT[amount] ?? product.price_dt)}` : `$${amount}`}
-                  </option>
-                ))}
+                {kind === "gift_card"
+                  ? GIFT_CARD_AMOUNTS.map((amount) => (
+                      <option key={amount} value={amount}>
+                        {`$${amount}`}
+                      </option>
+                    ))
+                  : kind === "gaming_topup" && gamingConfig
+                    ? gamingConfig.options.map((opt) => (
+                        <option key={opt.amount} value={opt.amount}>
+                          {`${opt.amount} ${gamingConfig.unit} - ${formatDt(opt.priceDt)}`}
+                        </option>
+                      ))
+                    : VCC_AMOUNTS.map((amount) => (
+                        <option key={amount} value={amount}>
+                          {`$${amount} - ${formatDt(VCC_PRICING_BY_AMOUNT[amount] ?? product.price_dt)}`}
+                        </option>
+                      ))}
               </select>
             </label>
           )}
@@ -125,7 +147,9 @@ export function ProductConfigPanel({ product, lang }: { product: Product; lang: 
                 ? copy.needAnotherGiftCard
                 : kind === "vcc"
                   ? copy.needAnotherVcc
-                  : copy.needAnotherPerplexity}
+                  : kind === "perplexity_pro"
+                    ? copy.needAnotherPerplexity
+                    : copy.needAnotherTopup}
             </span>
             <textarea
               value={customRequest}
