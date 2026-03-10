@@ -23,6 +23,11 @@ function gamingFamilyKey(slug: string) {
   if (s.startsWith("pubg-uc") || s.startsWith("pubg-mobile-uc")) return "pubg";
   if (s.startsWith("freefire-diamonds") || s.startsWith("free-fire-diamonds")) return "freefire";
   if (s.startsWith("valorant-points")) return "valorant";
+  if (s.startsWith("steam-gift")) return "steam";
+  if (s.startsWith("psn-card")) return "psn";
+  if (s.startsWith("xbox-gift")) return "xbox";
+  if (s.startsWith("googleplay-gift")) return "googleplay";
+  if (s.startsWith("itunes-gift")) return "itunes";
   return null;
 }
 

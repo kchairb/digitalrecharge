@@ -1,6 +1,11 @@
 import type { Product } from "@/types";
 
-export type CustomProductKind = "gift_card" | "vcc" | "perplexity_pro" | "gaming_topup";
+export type CustomProductKind =
+  | "gift_card"
+  | "vcc"
+  | "perplexity_pro"
+  | "gaming_topup"
+  | "store_card";
 
 export const GIFT_CARD_PROVIDERS = ["Steam", "Apple", "Google Play", "PlayStation", "Riot Games"] as const;
 export const GIFT_CARD_AMOUNTS = [10, 20, 30, 50, 100] as const;
@@ -17,6 +22,11 @@ export const PERPLEXITY_PERIODS = ["1_month", "1_year"] as const;
 type GamingOption = { amount: number; priceDt: number };
 
 type GamingConfig = {
+  unit: string;
+  options: GamingOption[];
+};
+
+type StoreCardConfig = {
   unit: string;
   options: GamingOption[];
 };
@@ -74,6 +84,54 @@ const GAMING_TOPUP_CONFIG: Record<string, GamingConfig> = {
   },
 };
 
+const STORE_CARD_CONFIG: Record<string, StoreCardConfig> = {
+  steam: {
+    unit: "$",
+    options: [
+      { amount: 5, priceDt: 20 },
+      { amount: 10, priceDt: 39 },
+      { amount: 20, priceDt: 75 },
+      { amount: 30, priceDt: 109 },
+      { amount: 50, priceDt: 185 },
+      { amount: 100, priceDt: 365 },
+    ],
+  },
+  psn: {
+    unit: "$",
+    options: [
+      { amount: 10, priceDt: 42 },
+      { amount: 20, priceDt: 78 },
+      { amount: 50, priceDt: 189 },
+      { amount: 100, priceDt: 370 },
+    ],
+  },
+  xbox: {
+    unit: "$",
+    options: [
+      { amount: 10, priceDt: 50 },
+      { amount: 25, priceDt: 120 },
+      { amount: 50, priceDt: 230 },
+    ],
+  },
+  googleplay: {
+    unit: "$",
+    options: [
+      { amount: 10, priceDt: 40 },
+      { amount: 20, priceDt: 78 },
+      { amount: 50, priceDt: 189 },
+    ],
+  },
+  itunes: {
+    unit: "$",
+    options: [
+      { amount: 10, priceDt: 40 },
+      { amount: 25, priceDt: 95 },
+      { amount: 50, priceDt: 185 },
+      { amount: 100, priceDt: 365 },
+    ],
+  },
+};
+
 function getGamingKey(product: Product): keyof typeof GAMING_TOPUP_CONFIG | null {
   const slug = product.slug.toLowerCase();
   if (slug.includes("fortnite-vbucks")) return "fortnite";
@@ -84,12 +142,30 @@ function getGamingKey(product: Product): keyof typeof GAMING_TOPUP_CONFIG | null
   return null;
 }
 
+function getStoreCardKey(product: Product): keyof typeof STORE_CARD_CONFIG | null {
+  const slug = product.slug.toLowerCase();
+  if (slug.includes("steam-gift")) return "steam";
+  if (slug.includes("psn-card")) return "psn";
+  if (slug.includes("xbox-gift")) return "xbox";
+  if (slug.includes("googleplay-gift")) return "googleplay";
+  if (slug.includes("itunes-gift")) return "itunes";
+  return null;
+}
+
 export function getGamingTopupConfig(
   product: Product,
 ): (GamingConfig & { key: keyof typeof GAMING_TOPUP_CONFIG }) | null {
   const key = getGamingKey(product);
   if (!key) return null;
   return { ...GAMING_TOPUP_CONFIG[key], key };
+}
+
+export function getStoreCardConfig(
+  product: Product,
+): (StoreCardConfig & { key: keyof typeof STORE_CARD_CONFIG }) | null {
+  const key = getStoreCardKey(product);
+  if (!key) return null;
+  return { ...STORE_CARD_CONFIG[key], key };
 }
 
 export type CartCustomizationInput = {
@@ -104,7 +180,13 @@ export function getCustomProductKind(product: Product): CustomProductKind | null
   if (categorySlug === "gift-cards") return "gift_card";
   if (product.slug === "vcc-5") return "vcc";
   if (product.slug === "perplexity-pro") return "perplexity_pro";
-   if (categorySlug === "gaming-top-ups" && getGamingKey(product)) return "gaming_topup";
+  if (categorySlug === "gaming-top-ups" && getGamingKey(product)) return "gaming_topup";
+  if (
+    (categorySlug === "gaming-gift-cards" || categorySlug === "app-store-cards") &&
+    getStoreCardKey(product)
+  ) {
+    return "store_card";
+  }
   return null;
 }
 
@@ -136,6 +218,13 @@ export function computeConfiguredUnitPriceDt(
 ) {
   if (kind === "gaming_topup") {
     const cfg = getGamingTopupConfig(product);
+    if (!cfg || !cfg.options.length) return product.price_dt;
+    const requested = amountUsd && amountUsd > 0 ? amountUsd : cfg.options[0].amount;
+    const match = cfg.options.find((opt) => opt.amount === requested) ?? cfg.options[0];
+    return match.priceDt;
+  }
+  if (kind === "store_card") {
+    const cfg = getStoreCardConfig(product);
     if (!cfg || !cfg.options.length) return product.price_dt;
     const requested = amountUsd && amountUsd > 0 ? amountUsd : cfg.options[0].amount;
     const match = cfg.options.find((opt) => opt.amount === requested) ?? cfg.options[0];
@@ -190,6 +279,15 @@ export function sanitizeCustomization(
 
   if (kind === "gaming_topup" && product) {
     const cfg = getGamingTopupConfig(product);
+    const allowed = cfg?.options.map((o) => o.amount) ?? [];
+    const safeAmount = allowed.includes(amount) ? amount : allowed[0];
+    return {
+      amountUsd: safeAmount,
+      customRequest,
+    };
+  }
+  if (kind === "store_card" && product) {
+    const cfg = getStoreCardConfig(product);
     const allowed = cfg?.options.map((o) => o.amount) ?? [];
     const safeAmount = allowed.includes(amount) ? amount : allowed[0];
     return {

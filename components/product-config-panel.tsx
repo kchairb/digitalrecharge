@@ -15,6 +15,7 @@ import {
   computeConfiguredUnitPriceDt,
   getCustomProductKind,
   getGamingTopupConfig,
+  getStoreCardConfig,
 } from "@/lib/product-customization";
 import { type Lang, t } from "@/lib/i18n";
 import { formatDt, whatsappProductOrderMessage, whatsappUrl } from "@/lib/utils";
@@ -24,10 +25,12 @@ export function ProductConfigPanel({ product, lang }: { product: Product; lang: 
   const copy = t(lang);
   const kind = getCustomProductKind(product);
   const gamingConfig = getGamingTopupConfig(product);
+  const storeCardConfig = getStoreCardConfig(product);
   const [provider, setProvider] = useState<string>(GIFT_CARD_PROVIDERS[0]);
   const [amountUsd, setAmountUsd] = useState<number>(() => {
     if (kind === "vcc") return VCC_AMOUNTS[0];
     if (kind === "gaming_topup" && gamingConfig?.options.length) return gamingConfig.options[0].amount;
+    if (kind === "store_card" && storeCardConfig?.options.length) return storeCardConfig.options[0].amount;
     return GIFT_CARD_AMOUNTS[0];
   });
   const [planPeriod, setPlanPeriod] = useState<"1_month" | "1_year">("1_month");
@@ -78,9 +81,11 @@ export function ProductConfigPanel({ product, lang }: { product: Product; lang: 
               ? copy.virtualCardOptions
               : kind === "perplexity_pro"
                 ? copy.perplexityOptions
-                : copy.gamingTopupOptions}
+                : kind === "gaming_topup"
+                  ? copy.gamingTopupOptions
+                  : copy.storeCardOptions}
         </p>
-        {kind === "vcc" || kind === "perplexity_pro" || kind === "gaming_topup" ? (
+        {kind === "vcc" || kind === "perplexity_pro" || kind === "gaming_topup" || kind === "store_card" ? (
           <p className="mt-2 text-sm text-sky-200">
             {copy.selectedPrice}: <span className="font-semibold">{formatDt(previewPrice)}</span>
           </p>
@@ -132,6 +137,12 @@ export function ProductConfigPanel({ product, lang }: { product: Product; lang: 
                           {`${opt.amount} ${gamingConfig.unit} - ${formatDt(opt.priceDt)}`}
                         </option>
                       ))
+                    : kind === "store_card" && storeCardConfig
+                      ? storeCardConfig.options.map((opt) => (
+                          <option key={opt.amount} value={opt.amount}>
+                            {`${storeCardConfig.unit}${opt.amount} - ${formatDt(opt.priceDt)}`}
+                          </option>
+                        ))
                     : VCC_AMOUNTS.map((amount) => (
                         <option key={amount} value={amount}>
                           {`$${amount} - ${formatDt(VCC_PRICING_BY_AMOUNT[amount] ?? product.price_dt)}`}
@@ -149,7 +160,9 @@ export function ProductConfigPanel({ product, lang }: { product: Product; lang: 
                   ? copy.needAnotherVcc
                   : kind === "perplexity_pro"
                     ? copy.needAnotherPerplexity
-                    : copy.needAnotherTopup}
+                    : kind === "gaming_topup"
+                      ? copy.needAnotherTopup
+                      : copy.needAnotherStoreCard}
             </span>
             <textarea
               value={customRequest}
