@@ -110,7 +110,13 @@ export function getCustomProductKind(product: Product): CustomProductKind | null
 
 export function isMonthlyPricedProduct(product: Product) {
   const categorySlug = product.categories?.slug?.toLowerCase() ?? "";
-  return categorySlug !== "gift-cards" && categorySlug !== "virtual-cards";
+  return ![
+    "gift-cards",
+    "virtual-cards",
+    "gaming-top-ups",
+    "gaming-gift-cards",
+    "app-store-cards",
+  ].includes(categorySlug);
 }
 
 export function inferBaseAmountUsd(product: Product) {
@@ -202,7 +208,21 @@ export function sanitizeCustomization(
 export function buildConfiguredLabel(productName: string, input: CartCustomizationInput) {
   const details: string[] = [];
   if (input.provider) details.push(input.provider);
-  if (input.amountUsd) details.push(`$${input.amountUsd}`);
+  if (input.amountUsd) {
+    const lower = productName.toLowerCase();
+    const gamingUnit = lower.includes("v-bucks")
+      ? "V-Bucks"
+      : lower.includes("robux")
+        ? "Robux"
+        : lower.includes("pubg") || lower.includes(" uc")
+          ? "UC"
+          : lower.includes("free fire") || lower.includes("diamonds")
+            ? "Diamonds"
+            : lower.includes("valorant") || lower.includes(" vp")
+              ? "VP"
+              : null;
+    details.push(gamingUnit ? `${input.amountUsd} ${gamingUnit}` : `$${input.amountUsd}`);
+  }
   if (input.planPeriod) details.push(input.planPeriod === "1_year" ? "1 year" : "1 month");
   if (input.customRequest) details.push(`Request: ${input.customRequest}`);
   if (!details.length) return productName;

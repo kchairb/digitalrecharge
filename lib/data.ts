@@ -3,6 +3,57 @@ import { unstable_cache } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { Category, Feedback, Order, Product } from "@/types";
 
+const GAMING_BASE_SLUGS = [
+  "fortnite-vbucks",
+  "fortnite-vbucks-1000",
+  "roblox-robux",
+  "roblox-robux-400",
+  "pubg-mobile-uc",
+  "pubg-uc-60",
+  "free-fire-diamonds",
+  "freefire-diamonds-100",
+  "valorant-points",
+  "valorant-points-475",
+] as const;
+
+function gamingFamilyKey(slug: string) {
+  const s = slug.toLowerCase();
+  if (s.startsWith("fortnite-vbucks")) return "fortnite";
+  if (s.startsWith("roblox-robux")) return "roblox";
+  if (s.startsWith("pubg-uc") || s.startsWith("pubg-mobile-uc")) return "pubg";
+  if (s.startsWith("freefire-diamonds") || s.startsWith("free-fire-diamonds")) return "freefire";
+  if (s.startsWith("valorant-points")) return "valorant";
+  return null;
+}
+
+function dedupeGamingTopupProducts(products: Product[]) {
+  const grouped = new Map<string, Product[]>();
+  for (const product of products) {
+    const key = gamingFamilyKey(product.slug);
+    if (!key) continue;
+    const list = grouped.get(key) ?? [];
+    list.push(product);
+    grouped.set(key, list);
+  }
+
+  const chosenSlugByFamily = new Map<string, string>();
+  grouped.forEach((items, family) => {
+    const base = items.find((p) => GAMING_BASE_SLUGS.includes(p.slug as (typeof GAMING_BASE_SLUGS)[number]));
+    if (base) {
+      chosenSlugByFamily.set(family, base.slug);
+      return;
+    }
+    const cheapest = [...items].sort((a, b) => a.price_dt - b.price_dt)[0];
+    chosenSlugByFamily.set(family, cheapest.slug);
+  });
+
+  return products.filter((product) => {
+    const key = gamingFamilyKey(product.slug);
+    if (!key) return true;
+    return chosenSlugByFamily.get(key) === product.slug;
+  });
+}
+
 export async function getCategories() {
   return cachedCategories();
 }
@@ -39,7 +90,7 @@ const cachedFeaturedProducts = unstable_cache(
   if (error) {
     throw new Error(error.message);
   }
-  return (data ?? []) as Product[];
+  return dedupeGamingTopupProducts((data ?? []) as Product[]);
   },
   ["featured-products"],
   { revalidate: 120, tags: ["featured-products", "products"] },
@@ -107,7 +158,7 @@ export async function getProducts(params?: {
   if (error) {
     throw new Error(error.message);
   }
-  return (data ?? []) as Product[];
+  return dedupeGamingTopupProducts((data ?? []) as Product[]);
 }
 
 const cachedDefaultProducts = unstable_cache(
@@ -121,7 +172,7 @@ const cachedDefaultProducts = unstable_cache(
     if (error) {
       throw new Error(error.message);
     }
-    return (data ?? []) as Product[];
+    return dedupeGamingTopupProducts((data ?? []) as Product[]);
   },
   ["default-products"],
   { revalidate: 120, tags: ["products"] },
